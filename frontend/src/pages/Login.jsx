@@ -18,7 +18,7 @@ export default function Login() {
   return (
     <main className="auth-page">
       <form className="auth-card" onSubmit={entrar}>
-        <div className="brand auth-brand"><span>Cont</span><strong>IA</strong></div>
+        <div className="brand auth-brand"><img src="/logo-contia.png" alt="ContIA" /></div>
         <h1>Bem-vindo de volta</h1>
         <p>Acesse o financeiro do seu negócio.</p>
         <label>E-mail<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@email.com" required /></label>

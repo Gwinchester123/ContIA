@@ -41,6 +41,15 @@ body {
   font-weight: 800;
 }
 
+.brand img {
+  display: block;
+  max-width: 145px;
+  max-height: 44px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
 .sidebar nav {
   display: flex;
   flex-direction: column;
@@ -519,6 +528,11 @@ td:first-child {
   .brand {
     height: 36px;
     margin-bottom: 12px;
+  }
+
+  .brand img {
+    max-width: 130px;
+    max-height: 36px;
   }
 
   .sidebar nav {

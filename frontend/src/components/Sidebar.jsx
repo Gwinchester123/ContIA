@@ -16,7 +16,7 @@ const menuItems = [
 export default function Sidebar() {
   return (
     <aside className="sidebar">
-      <div className="brand"><span>Cont</span><strong>IA</strong></div>
+      <div className="brand"><img src="/logo-contia.png" alt="ContIA" /></div>
       <nav>
         {menuItems.map((item) => (
           <NavLink key={item.path} to={item.path} end={item.path === '/dashboard'} className={({ isActive }) => isActive ? 'active' : ''}>

@@ -19,7 +19,7 @@ export default function Cadastro() {
   return (
     <main className="auth-page">
       <form className="auth-card" onSubmit={cadastrar}>
-        <div className="brand auth-brand"><span>Cont</span><strong>IA</strong></div>
+        <div className="brand auth-brand"><img src="/logo-contia.png" alt="ContIA" /></div>
         <h1>Crie sua conta</h1>
         <p>Comece a acompanhar suas vendas e despesas.</p>
         <label>Nome<input type="text" value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Seu nome" required /></label>
