@@ -1,3 +1,6 @@
+/* ========================================
+   CONFIGURAÇÕES GERAIS
+======================================== */
 
 * {
   margin: 0;
@@ -10,6 +13,10 @@ body {
   background: #f7f8f6;
   color: #252a27;
 }
+
+/* ========================================
+   ESTRUTURA PRINCIPAL
+======================================== */
 
 .container {
   display: flex;
@@ -85,6 +92,10 @@ body {
   padding: 34px 40px;
 }
 
+/* ========================================
+   CABEÇALHOS
+======================================== */
+
 header {
   min-height: 48px;
   display: flex;
@@ -104,6 +115,10 @@ header p,
   color: #858b86;
   font-size: 14px;
 }
+
+/* ========================================
+   PERFIL DO USUÁRIO NO CABEÇALHO
+======================================== */
 
 .profile-wrapper {
   position: relative;
@@ -194,6 +209,10 @@ header p,
   font-size: 11px;
 }
 
+/* ========================================
+   CARDS FINANCEIROS
+======================================== */
+
 .cards {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -242,6 +261,10 @@ header p,
   letter-spacing: -0.4px;
 }
 
+/* ========================================
+   PAINÉIS E GRÁFICOS
+======================================== */
+
 .content {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -283,6 +306,10 @@ header p,
   min-height: 180px;
 }
 
+/* ========================================
+   TABELAS
+======================================== */
+
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -300,17 +327,20 @@ th {
   text-align: left;
 }
 
-th, td {
+th,
+td {
   padding: 11px 8px;
   border-bottom: 1px solid #edf0ed;
   white-space: nowrap;
 }
 
-th:first-child, td:first-child {
+th:first-child,
+td:first-child {
   padding-left: 0;
 }
 
-th:last-child, td:last-child {
+th:last-child,
+td:last-child {
   text-align: right;
   padding-right: 0;
 }
@@ -323,6 +353,10 @@ td:first-child {
   color: #252a27;
   font-weight: 500;
 }
+
+/* ========================================
+   STATUS
+======================================== */
 
 .status {
   padding: 4px 7px;
@@ -339,6 +373,10 @@ td:first-child {
   background: #f1f1ef;
   color: #777b77;
 }
+
+/* ========================================
+   FORMULÁRIOS DO DASHBOARD
+======================================== */
 
 .registration-panel {
   min-height: 0;
@@ -384,6 +422,10 @@ td:first-child {
   border-color: #6fa88e;
 }
 
+/* ========================================
+   BOTÕES
+======================================== */
+
 .primary-button {
   height: 40px;
   border: 0;
@@ -395,6 +437,19 @@ td:first-child {
   cursor: pointer;
   white-space: nowrap;
 }
+
+.primary-button:hover {
+  background: #245544;
+}
+
+.primary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   LOGIN E CADASTRO
+======================================== */
 
 .auth-page {
   min-height: 100vh;
@@ -442,6 +497,15 @@ td:first-child {
   text-decoration: none;
 }
 
+.auth-error {
+  color: #c0392b;
+  font-size: 13px;
+}
+
+/* ========================================
+   RELATÓRIOS
+======================================== */
+
 .reports-cards {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -469,6 +533,10 @@ td:first-child {
 .report-lines strong {
   color: #252a27;
 }
+
+/* ========================================
+   OUTROS COMPONENTES
+======================================== */
 
 .form-total {
   min-height: 40px;
@@ -500,6 +568,132 @@ td:first-child {
   color: #183c32;
 }
 
+/* ========================================
+   MEU PERFIL
+======================================== */
+
+.profile-page {
+  width: 100%;
+}
+
+.profile-page-header {
+  display: block;
+  margin-bottom: 28px;
+}
+
+.profile-page-header h1 {
+  margin: 0 0 6px;
+}
+
+.profile-page-header p {
+  margin: 0;
+  color: #858b86;
+  font-size: 14px;
+}
+
+.profile-form {
+  width: 100%;
+  max-width: 650px;
+  padding: 32px;
+  background: #fff;
+  border: 1px solid #e8ece8;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(24, 60, 50, 0.04);
+}
+
+.profile-form-heading {
+  margin-bottom: 28px;
+}
+
+.profile-form-heading h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: #183c32;
+}
+
+.profile-form-heading p {
+  margin: 0;
+  color: #858b86;
+  font-size: 14px;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.profile-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #34483f;
+}
+
+.profile-field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #dce3dd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #263a31;
+  background: #fff;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.profile-field input:focus {
+  border-color: #2f715d;
+  box-shadow: 0 0 0 3px rgba(47, 113, 93, 0.1);
+}
+
+.profile-field input:disabled {
+  background: #f4f6f4;
+  color: #858b86;
+  cursor: not-allowed;
+}
+
+.profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.profile-actions .primary-button {
+  height: 44px;
+}
+
+.profile-back-button {
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid #dce3dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #345347;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-back-button:hover {
+  background: #f4f6f4;
+}
+
+.profile-success {
+  color: #2f715d;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ========================================
+   RESPONSIVIDADE - TABLETS
+======================================== */
+
 @media (max-width: 900px) {
   .compact-form,
   .cards,
@@ -512,6 +706,10 @@ td:first-child {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================================
+   RESPONSIVIDADE - CELULARES
+======================================== */
 
 @media (max-width: 600px) {
   .container {
@@ -566,5 +764,18 @@ td:first-child {
 
   .sales-chart {
     height: 210px;
+  }
+
+  .profile-form {
+    padding: 22px;
+  }
+
+  .profile-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .profile-actions button {
+    width: 100%;
   }
 }
