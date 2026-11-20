@@ -5,6 +5,7 @@ import com.contia.model.Despesa;
 import com.contia.service.DespesaService;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/despesas")
-@CrossOrigin(origins = "http://localhost:5173")
 public class DespesaController {
 
     private final DespesaService despesaService;
@@ -43,6 +43,26 @@ public class DespesaController {
                 .stream()
                 .map(this::converterResposta)
                 .toList();
+    }
+
+    @PutMapping("/{despesaId}")
+    public DespesaResposta atualizar(
+            @PathVariable Long despesaId,
+            @RequestBody DespesaRequest request) {
+        return converterResposta(despesaService.atualizar(
+                despesaId,
+                request.estabelecimentoId(),
+                request.descricao(),
+                request.categoria(),
+                request.valor()));
+    }
+
+    @DeleteMapping("/{despesaId}")
+    public ResponseEntity<Void> excluir(
+            @PathVariable Long despesaId,
+            @RequestParam Long estabelecimentoId) {
+        despesaService.excluir(despesaId, estabelecimentoId);
+        return ResponseEntity.noContent().build();
     }
 
     private DespesaResposta converterResposta(Despesa despesa) {

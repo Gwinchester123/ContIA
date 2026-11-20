@@ -13,6 +13,7 @@ import {
   formatCurrency,
   clearSessionUser,
   getSessionUser,
+  getExpenseBreakdown,
 } from "../data/financeStorage";
 import { getSessionName } from "../data/financeStorage";
 
@@ -112,22 +113,7 @@ export default function Overview() {
     carregarDados();
   }, []);
 
-  const compras = despesas
-    .filter((despesa) =>
-      ["ingredientes", "materiais", "insumos"].includes(
-        (despesa.categoria || "").toLowerCase(),
-      ),
-    )
-    .reduce((total, despesa) => total + Number(despesa.valor || 0), 0);
-
-  const outras = despesas
-    .filter(
-      (despesa) =>
-        !["ingredientes", "materiais", "insumos"].includes(
-          (despesa.categoria || "").toLowerCase(),
-        ),
-    )
-    .reduce((total, despesa) => total + Number(despesa.valor || 0), 0);
+  const { compras, outras } = getExpenseBreakdown(despesas);
 
   const faturamento = vendas.reduce(
     (total, venda) => total + Number(venda.total || 0),
@@ -395,7 +381,7 @@ export default function Overview() {
         <div className="panel recent-sales">
           <h3>Despesas recentes</h3>
           <div className="table-wrapper">
-            <table>
+            <table className="responsive-table">
               <thead>
                 <tr>
                   <th>Descrição</th>
@@ -407,10 +393,10 @@ export default function Overview() {
               <tbody>
                 {despesasRecentes.map((despesa) => (
                   <tr key={despesa.id}>
-                    <td>{despesa.descricao}</td>
-                    <td>{despesa.categoria}</td>
-                    <td>{formatCurrency(despesa.valor)}</td>
-                    <td>
+                    <td data-label="Descrição">{despesa.descricao}</td>
+                    <td data-label="Categoria">{despesa.categoria}</td>
+                    <td data-label="Valor">{formatCurrency(despesa.valor)}</td>
+                    <td data-label="Data">
                       {new Date(despesa.dataHora).toLocaleDateString("pt-BR")}
                     </td>
                   </tr>

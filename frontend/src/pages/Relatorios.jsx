@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
-import { formatCurrency, getSessionUser } from "../data/financeStorage";
+import { formatCurrency, getSessionUser, getExpenseBreakdown } from "../data/financeStorage";
+import { baixarRelatorioPdf, periodoAtual } from "../data/financialReports";
 
 export default function Relatorios() {
   const [vendas, setVendas] = useState([]);
   const [despesas, setDespesas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [estabelecimento, setEstabelecimento] = useState(null);
+  const [periodo, setPeriodo] = useState("mensal");
+  const [datas, setDatas] = useState(() => periodoAtual("mensal"));
+  const [baixando, setBaixando] = useState(false);
 
   useEffect(() => {
     const proprietarioId = getSessionUser();
@@ -32,6 +37,8 @@ export default function Relatorios() {
         if (!estabelecimentoAtual) {
           throw new Error("Nenhum estabelecimento encontrado.");
         }
+
+        setEstabelecimento(estabelecimentoAtual);
 
         const id = estabelecimentoAtual.id;
 
@@ -62,22 +69,31 @@ export default function Relatorios() {
     carregarDados();
   }, []);
 
-  const compras = despesas
-    .filter((despesa) =>
-      ["ingredientes", "materiais", "insumos"].includes(
-        (despesa.categoria || "").toLowerCase(),
-      ),
-    )
-    .reduce((total, despesa) => total + Number(despesa.valor || 0), 0);
+  const atualizarPeriodo = (tipo) => {
+    setPeriodo(tipo);
+    if (tipo !== "personalizado") setDatas(periodoAtual(tipo));
+  };
 
-  const outras = despesas
-    .filter(
-      (despesa) =>
-        !["ingredientes", "materiais", "insumos"].includes(
-          (despesa.categoria || "").toLowerCase(),
-        ),
-    )
-    .reduce((total, despesa) => total + Number(despesa.valor || 0), 0);
+  const baixarPdf = async (completo) => {
+    if (!estabelecimento || !datas.inicio || !datas.fim) return;
+    setBaixando(true);
+    setErro("");
+    try {
+      await baixarRelatorioPdf({
+        proprietarioId: getSessionUser(),
+        estabelecimentoId: estabelecimento.id,
+        inicio: datas.inicio,
+        fim: datas.fim,
+        completo,
+      });
+    } catch (erroDownload) {
+      setErro(erroDownload.message);
+    } finally {
+      setBaixando(false);
+    }
+  };
+
+  const { compras, outras } = getExpenseBreakdown(despesas);
 
   const faturamento = vendas.reduce(
     (total, venda) => total + Number(venda.total || 0),
@@ -120,6 +136,29 @@ export default function Relatorios() {
           <p>Resumo financeiro simples do seu negócio.</p>
         </div>
       </header>
+
+      <section className="panel report-period-panel">
+        <div className="report-controls">
+          <label>Período do PDF
+            <select value={periodo} onChange={(event) => atualizarPeriodo(event.target.value)}>
+              <option value="diario">Diário</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensal">Mensal</option>
+              <option value="personalizado">Personalizado</option>
+            </select>
+          </label>
+          {periodo === "personalizado" && <>
+            <label>De<input type="date" value={datas.inicio} onChange={(event) => setDatas((atual) => ({ ...atual, inicio: event.target.value }))} /></label>
+            <label>Até<input type="date" value={datas.fim} onChange={(event) => setDatas((atual) => ({ ...atual, fim: event.target.value }))} /></label>
+          </>}
+          <button className="primary-button" type="button" onClick={() => baixarPdf(false)} disabled={baixando || !estabelecimento || !datas.inicio || !datas.fim || datas.inicio > datas.fim}>
+            {baixando ? "Gerando PDF..." : "Baixar PDF essencial"}
+          </button>
+          <button className="secondary-button" type="button" onClick={() => baixarPdf(true)} disabled={baixando || !estabelecimento || !datas.inicio || !datas.fim || datas.inicio > datas.fim}>
+            Baixar PDF completo
+          </button>
+        </div>
+      </section>
 
       {erro && <p className="error-message">{erro}</p>}
 
@@ -181,7 +220,7 @@ export default function Relatorios() {
         <div className="panel">
           <h3>Despesas por categoria</h3>
           <div className="table-wrapper">
-            <table>
+            <table className="responsive-table">
               <thead>
                 <tr>
                   <th>Categoria</th>
@@ -191,8 +230,8 @@ export default function Relatorios() {
               <tbody>
                 {categorias.map((item) => (
                   <tr key={item.categoria}>
-                    <td>{item.categoria}</td>
-                    <td>{formatCurrency(item.valor)}</td>
+                    <td data-label="Categoria">{item.categoria}</td>
+                    <td data-label="Valor">{formatCurrency(item.valor)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -125,20 +125,35 @@ export const addExpense = (expense) =>
 export const removeExpense = (id) =>
   saveExpenses(getExpenses().filter((expense) => expense.id !== id));
 
+const CATEGORIAS_CUSTO_DIRETO = new Set([
+  "ingredientes",
+  "materiais",
+  "insumos",
+  "embalagens",
+]);
+
+export const normalizarCategoriaDespesa = (categoria) =>
+  String(categoria || "").trim().toLocaleLowerCase("pt-BR");
+
 export const isPurchaseOrCost = (expense) =>
-  ["Ingredientes", "Materiais", "Insumos"].includes(expense.categoria);
+  CATEGORIAS_CUSTO_DIRETO.has(normalizarCategoriaDespesa(expense?.categoria));
+
+export const getExpenseBreakdown = (expenses) =>
+  expenses.reduce(
+    (totais, expense) => {
+      const chave = isPurchaseOrCost(expense) ? "compras" : "outras";
+      totais[chave] += Number(expense.valor || 0);
+      return totais;
+    },
+    { compras: 0, outras: 0 },
+  );
 export const getSalesTotal = (sales) =>
   sales.reduce((total, sale) => total + Number(sale.total || 0), 0);
 export const getExpensesTotal = (expenses) =>
   expenses.reduce((total, expense) => total + Number(expense.valor || 0), 0);
 export const getFinancialSummary = (sales, expenses) => {
   const faturamento = getSalesTotal(sales);
-  const compras = expenses
-    .filter(isPurchaseOrCost)
-    .reduce((total, expense) => total + Number(expense.valor || 0), 0);
-  const outras = expenses
-    .filter((expense) => !isPurchaseOrCost(expense))
-    .reduce((total, expense) => total + Number(expense.valor || 0), 0);
+  const { compras, outras } = getExpenseBreakdown(expenses);
   return {
     faturamento,
     compras,

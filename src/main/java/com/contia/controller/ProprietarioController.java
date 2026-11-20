@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/proprietarios")
-@CrossOrigin(origins = "http://localhost:5173")
 public class ProprietarioController {
 
     private final ProprietarioService proprietarioService;

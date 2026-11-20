@@ -5,6 +5,7 @@ import com.contia.model.Venda;
 import com.contia.service.VendaService;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/vendas")
-@CrossOrigin(origins = "http://localhost:5173")
 public class VendaController {
 
     private final VendaService vendaService;
@@ -42,6 +42,26 @@ public class VendaController {
                 .stream()
                 .map(this::converterResposta)
                 .toList();
+    }
+
+    @PutMapping("/{vendaId}")
+    public VendaResposta atualizar(
+            @PathVariable Long vendaId,
+            @RequestBody VendaRequest request) {
+        return converterResposta(vendaService.atualizar(
+                vendaId,
+                request.estabelecimentoId(),
+                request.produto(),
+                request.quantidade(),
+                request.valorUnitario()));
+    }
+
+    @DeleteMapping("/{vendaId}")
+    public ResponseEntity<Void> excluir(
+            @PathVariable Long vendaId,
+            @RequestParam Long estabelecimentoId) {
+        vendaService.excluir(vendaId, estabelecimentoId);
+        return ResponseEntity.noContent().build();
     }
 
     private VendaResposta converterResposta(Venda venda) {

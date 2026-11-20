@@ -8,4 +8,6 @@ import java.util.List;
 public interface EstabelecimentoRepository extends JpaRepository<Estabelecimento, Long> {
 
     List<Estabelecimento> findByProprietarioId(Long proprietarioId);
+
+    java.util.Optional<Estabelecimento> findByIdAndProprietarioId(Long id, Long proprietarioId);
 }
