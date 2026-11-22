@@ -3,6 +3,9 @@ package com.contia.controller;
 
 import com.contia.model.Estabelecimento;
 import com.contia.service.EstabelecimentoService;
+import com.contia.security.UsuarioAutenticado;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -21,26 +24,33 @@ public class EstabelecimentoController {
 
     @PostMapping
     public EstabelecimentoResposta cadastrar(
-            @RequestBody EstabelecimentoRequest request) {
+            @RequestBody EstabelecimentoRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado usuario) {
 
         Estabelecimento estabelecimento = new Estabelecimento();
         estabelecimento.setNome(request.nome());
         estabelecimento.setTipo(request.tipo());
 
         Estabelecimento salvo = estabelecimentoService.cadastrar(
-                request.proprietarioId(), estabelecimento);
+                usuario.id(), estabelecimento);
 
         return new EstabelecimentoResposta(
                 salvo.getId(),
                 salvo.getNome(),
                 salvo.getTipo(),
-                salvo.getProprietario().getId()
+                salvo.getProprietario().getId(),
+                salvo.getPlano().name()
         );
     }
 
     @GetMapping("/proprietario/{proprietarioId}")
     public List<EstabelecimentoResposta> listar(
-            @PathVariable Long proprietarioId) {
+            @PathVariable Long proprietarioId,
+            @AuthenticationPrincipal UsuarioAutenticado usuario) {
+
+        if (!proprietarioId.equals(usuario.id())) {
+            throw new AccessDeniedException("Acesso ao proprietário não autorizado.");
+        }
 
         return estabelecimentoService
                 .listarPorProprietario(proprietarioId)
@@ -49,7 +59,8 @@ public class EstabelecimentoController {
                         estabelecimento.getId(),
                         estabelecimento.getNome(),
                         estabelecimento.getTipo(),
-                        estabelecimento.getProprietario().getId()
+                        estabelecimento.getProprietario().getId(),
+                        estabelecimento.getPlano().name()
                 ))
                 .toList();
     }
@@ -57,11 +68,12 @@ public class EstabelecimentoController {
     @PutMapping("/{estabelecimentoId}/nome")
 public EstabelecimentoResposta atualizarNome(
         @PathVariable Long estabelecimentoId,
-        @RequestBody AtualizarNomeRequest request) {
+        @RequestBody AtualizarNomeRequest request,
+        @AuthenticationPrincipal UsuarioAutenticado usuario) {
 
     Estabelecimento atualizado = estabelecimentoService.atualizarNome(
         estabelecimentoId,
-        request.proprietarioId(),
+        usuario.id(),
         request.nome()
     );
 
@@ -69,7 +81,8 @@ public EstabelecimentoResposta atualizarNome(
         atualizado.getId(),
         atualizado.getNome(),
         atualizado.getTipo(),
-        atualizado.getProprietario().getId()
+        atualizado.getProprietario().getId(),
+        atualizado.getPlano().name()
     );
 }
 
@@ -83,7 +96,8 @@ public EstabelecimentoResposta atualizarNome(
             Long id,
             String nome,
             String tipo,
-            Long proprietarioId
+            Long proprietarioId,
+            String plano
     ) {}
 
     public record AtualizarNomeRequest(Long proprietarioId, String nome) {}

@@ -6,15 +6,18 @@ import com.contia.model.Estabelecimento;
 import com.contia.repository.DespesaRepository;
 import com.contia.repository.EstabelecimentoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
 public class DespesaService {
 
     private static final BigDecimal VALOR_MAXIMO = new BigDecimal("99999999.99");
+    private static final ZoneId FUSO_HORARIO = ZoneId.of("America/Fortaleza");
 
     private final DespesaRepository despesaRepository;
     private final EstabelecimentoRepository estabelecimentoRepository;
@@ -41,11 +44,40 @@ public class DespesaService {
         despesa.setDescricao(descricao.trim());
         despesa.setCategoria(categoria.trim());
         despesa.setValor(valor);
-        despesa.setDataHora(LocalDateTime.now());
+        despesa.setDataHora(LocalDateTime.now(FUSO_HORARIO));
         despesa.setEstabelecimento(estabelecimento);
 
         return despesaRepository.save(despesa);
     }
+
+    @Transactional
+    public List<Despesa> registrarLote(Long estabelecimentoId, List<DespesaEntrada> entradas) {
+        if (entradas == null || entradas.isEmpty()) {
+            throw new IllegalArgumentException("Informe ao menos uma despesa.");
+        }
+        for (DespesaEntrada entrada : entradas) {
+            if (entrada == null) {
+                throw new IllegalArgumentException("O lançamento da despesa é inválido.");
+            }
+            validarDados(entrada.descricao(), entrada.categoria(), entrada.valor());
+        }
+
+        Estabelecimento estabelecimento = estabelecimentoRepository.findById(estabelecimentoId)
+                .orElseThrow(() -> new IllegalArgumentException("Estabelecimento não encontrado."));
+        List<Despesa> despesas = entradas.stream().map(entrada -> {
+            Despesa despesa = new Despesa();
+            despesa.setDescricao(entrada.descricao().trim());
+            despesa.setCategoria(entrada.categoria().trim());
+            despesa.setValor(entrada.valor());
+            despesa.setDataHora(LocalDateTime.now(FUSO_HORARIO));
+            despesa.setEstabelecimento(estabelecimento);
+            return despesa;
+        }).toList();
+
+        return despesaRepository.saveAllAndFlush(despesas);
+    }
+
+    public record DespesaEntrada(String descricao, String categoria, BigDecimal valor) {}
 
     public List<Despesa> listarPorEstabelecimento(Long estabelecimentoId) {
         return despesaRepository.findByEstabelecimentoId(estabelecimentoId);

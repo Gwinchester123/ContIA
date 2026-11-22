@@ -1,5 +1,4 @@
 const SESSION_USER_KEY = "contia-session-user";
-const USERS_KEY = "contia-users";
 const STORAGE_EVENT = "contia-finance-updated";
 
 export const createId = () =>
@@ -7,6 +6,8 @@ export const createId = () =>
   `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 export const getSessionUser = () =>
   sessionStorage.getItem(SESSION_USER_KEY) || "";
+export const getSessionEstablishment = () =>
+  sessionStorage.getItem("contia-session-establishment-id") || "";
 export const setSessionUser = (userOrId) => {
   const userId = typeof userOrId === "object" ? userOrId?.id : userOrId;
 
@@ -15,6 +16,25 @@ export const setSessionUser = (userOrId) => {
   if (typeof userOrId === "object" && userOrId?.nome) {
     sessionStorage.setItem("contia-session-name", userOrId.nome);
   }
+  if (typeof userOrId === "object" && userOrId?.token) {
+    sessionStorage.setItem("contia-session-token", userOrId.token);
+    sessionStorage.setItem("contia-session-profile", userOrId.perfil || "PROPRIETARIO");
+    if (userOrId.estabelecimentoId) {
+      sessionStorage.setItem("contia-session-establishment-id", String(userOrId.estabelecimentoId));
+    } else {
+      sessionStorage.removeItem("contia-session-establishment-id");
+    }
+  }
+};
+
+export const getSessionToken = () => sessionStorage.getItem("contia-session-token") || "";
+export const getSessionProfile = () => sessionStorage.getItem("contia-session-profile") || "";
+
+export const apiFetch = (url, options = {}) => {
+  const headers = new Headers(options.headers || {});
+  const token = getSessionToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  return fetch(url, { ...options, headers });
 };
 
 export const getSessionName = () => {
@@ -23,49 +43,9 @@ export const getSessionName = () => {
 export const clearSessionUser = () => {
   sessionStorage.removeItem(SESSION_USER_KEY);
   sessionStorage.removeItem("contia-session-name");
-};
-
-export const getUsers = () => {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
-  } catch {
-    return [];
-  }
-};
-
-export const registerUser = ({ name, email, password }) => {
-  const normalizedEmail = email.trim().toLowerCase();
-  const accounts = getUsers();
-  if (accounts.some((account) => account.email === normalizedEmail))
-    return null;
-  const account = {
-    id: createId(),
-    name: name.trim(),
-    email: normalizedEmail,
-    password,
-  };
-  localStorage.setItem(USERS_KEY, JSON.stringify([...accounts, account]));
-  return account;
-};
-
-export const authenticateUser = ({ email, password }) => {
-  const normalizedEmail = email.trim().toLowerCase();
-  const existing = getUsers().find(
-    (account) => account.email === normalizedEmail,
-  );
-  if (existing) return existing.password === password ? existing : null;
-
-  const hasLegacyData =
-    localStorage.getItem(legacyStorageKey("vendas", normalizedEmail)) !==
-      null ||
-    localStorage.getItem(legacyStorageKey("despesas", normalizedEmail)) !==
-      null;
-  if (!hasLegacyData) return null;
-  return registerUser({
-    name: normalizedEmail.split("@")[0],
-    email: normalizedEmail,
-    password,
-  });
+  sessionStorage.removeItem("contia-session-token");
+  sessionStorage.removeItem("contia-session-profile");
+  sessionStorage.removeItem("contia-session-establishment-id");
 };
 
 const storageKey = (collection, userId = getSessionUser()) =>
@@ -80,7 +60,8 @@ const getStoredCollection = (collection, userId = getSessionUser()) => {
     const current = localStorage.getItem(storageKey(collection, userId));
     if (current !== null) return JSON.parse(current);
 
-    const account = getUsers().find((user) => user.id === userId);
+    const accounts = JSON.parse(localStorage.getItem("contia-users") || "[]");
+    const account = accounts.find((user) => user.id === userId);
     if (!account) return [];
     const legacy = localStorage.getItem(
       legacyStorageKey(collection, account.email),

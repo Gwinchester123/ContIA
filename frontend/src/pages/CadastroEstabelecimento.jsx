@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSessionUser } from "../data/financeStorage";
+import { apiFetch, getSessionUser } from "../data/financeStorage";
+import { apiUrl } from "../data/api";
 
 export default function CadastroEstabelecimento() {
   const navigate = useNavigate();
@@ -23,8 +24,8 @@ export default function CadastroEstabelecimento() {
     setCarregando(true);
 
     try {
-      const resposta = await fetch(
-        "http://localhost:8080/api/estabelecimentos",
+      const resposta = await apiFetch(
+        apiUrl("/estabelecimentos"),
         {
           method: "POST",
           headers: {

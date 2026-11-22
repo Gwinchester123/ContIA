@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setSessionUser } from "../data/financeStorage";
+import { apiUrl } from "../data/api";
 
 function formatarTelefone(valor) {
   const numeros = valor.replace(/\D/g, "").slice(0, 11);
@@ -44,7 +45,7 @@ export default function Cadastro() {
     setCarregando(true);
 
     try {
-      const resposta = await fetch("http://localhost:8080/api/proprietarios", {
+      const resposta = await fetch(apiUrl("/proprietarios"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

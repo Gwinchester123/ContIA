@@ -4,6 +4,8 @@ package com.contia.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "vendas")
@@ -31,6 +33,18 @@ public class Venda {
     @ManyToOne
     @JoinColumn(name = "estabelecimento_id", nullable = false)
     private Estabelecimento estabelecimento;
+
+    @ManyToOne
+    @JoinColumn(name = "proprietario_responsavel_id")
+    private Proprietario proprietarioResponsavel;
+
+    @ManyToOne
+    @JoinColumn(name = "funcionario_responsavel_id")
+    private Funcionario funcionarioResponsavel;
+
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("ordem ASC, id ASC")
+    private List<VendaItem> itens = new ArrayList<>();
 
     public Venda() {
     }
@@ -85,6 +99,26 @@ public class Venda {
 
     public void setEstabelecimento(Estabelecimento estabelecimento) {
         this.estabelecimento = estabelecimento;
+    }
+
+    public Proprietario getProprietarioResponsavel() { return proprietarioResponsavel; }
+    public void setProprietarioResponsavel(Proprietario proprietarioResponsavel) {
+        this.proprietarioResponsavel = proprietarioResponsavel;
+        if (proprietarioResponsavel != null) this.funcionarioResponsavel = null;
+    }
+    public Funcionario getFuncionarioResponsavel() { return funcionarioResponsavel; }
+    public void setFuncionarioResponsavel(Funcionario funcionarioResponsavel) {
+        this.funcionarioResponsavel = funcionarioResponsavel;
+        if (funcionarioResponsavel != null) this.proprietarioResponsavel = null;
+    }
+    public List<VendaItem> getItens() { return itens; }
+    public void setItens(List<VendaItem> itens) {
+        this.itens.clear();
+        if (itens != null) itens.forEach(this::adicionarItem);
+    }
+    public void adicionarItem(VendaItem item) {
+        item.setVenda(this);
+        this.itens.add(item);
     }
 }
 

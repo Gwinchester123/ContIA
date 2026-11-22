@@ -20,6 +20,10 @@ public class Estabelecimento {
     @JoinColumn(name = "proprietario_id", nullable = false)
     private Proprietario proprietario;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PlanoEstabelecimento plano = PlanoEstabelecimento.BASICO;
+
     public Estabelecimento() {
     }
 
@@ -50,4 +54,7 @@ public class Estabelecimento {
     public void setProprietario(Proprietario proprietario) {
         this.proprietario = proprietario;
     }
+
+    public PlanoEstabelecimento getPlano() { return plano; }
+    public void setPlano(PlanoEstabelecimento plano) { this.plano = plano; }
 }

@@ -1,6 +1,5 @@
-import { getSessionUser } from "./financeStorage";
-
-const API = "http://localhost:8080/api";
+import { apiFetch, getSessionUser } from "./financeStorage";
+import { apiUrl } from "./api";
 
 export const dataLocal = (data) => {
   const ano = data.getFullYear();
@@ -9,30 +8,23 @@ export const dataLocal = (data) => {
   return `${ano}-${mes}-${dia}`;
 };
 
-export const obterEstabelecimentoAtual = async () => {
+export const obterEstabelecimentosProprietario = async () => {
   const proprietarioId = getSessionUser();
   if (!proprietarioId) throw new Error("Usuário não identificado.");
-  const resposta = await fetch(`${API}/estabelecimentos/proprietario/${proprietarioId}`);
-  if (!resposta.ok) throw new Error("Não foi possível localizar seu estabelecimento.");
+  const resposta = await apiFetch(apiUrl(`/estabelecimentos/proprietario/${proprietarioId}`));
+  if (!resposta.ok) throw new Error("Não foi possível localizar seus estabelecimentos.");
   const estabelecimentos = await resposta.json();
-  const estabelecimento = estabelecimentos[0];
-  if (!estabelecimento) throw new Error("Nenhum estabelecimento encontrado.");
-  return { proprietarioId, estabelecimento };
+  if (!Array.isArray(estabelecimentos)) throw new Error("A resposta de estabelecimentos está inválida.");
+  return { proprietarioId, estabelecimentos };
 };
 
-export const montarUrlRelatorio = (rota, proprietarioId, estabelecimentoId, inicio, fim, completo = false) => {
-  const params = new URLSearchParams({
-    proprietarioId,
-    estabelecimentoId,
-    inicio,
-    fim,
-  });
-  if (rota === "pdf") params.set("completo", String(completo));
-  return `${API}/relatorios-financeiros/${rota}?${params}`;
+export const montarUrlRelatorio = (rota, proprietarioId, estabelecimentoId, inicio, fim) => {
+  const params = new URLSearchParams({ proprietarioId, estabelecimentoId, inicio, fim });
+  return `${apiUrl(`/relatorios-financeiros/${rota}`)}?${params}`;
 };
 
-export const baixarRelatorioPdf = async ({ proprietarioId, estabelecimentoId, inicio, fim, completo = false }) => {
-  const resposta = await fetch(montarUrlRelatorio("pdf", proprietarioId, estabelecimentoId, inicio, fim, completo));
+export const baixarRelatorioPdf = async ({ proprietarioId, estabelecimentoId, inicio, fim }) => {
+  const resposta = await apiFetch(montarUrlRelatorio("pdf", proprietarioId, estabelecimentoId, inicio, fim));
   if (!resposta.ok) throw new Error("Não foi possível gerar o PDF para o período selecionado.");
   const arquivo = URL.createObjectURL(await resposta.blob());
   const link = document.createElement("a");

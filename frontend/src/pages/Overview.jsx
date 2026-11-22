@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -11,11 +10,11 @@ import {
 } from "recharts";
 import {
   formatCurrency,
-  clearSessionUser,
+  apiFetch,
   getSessionUser,
   getExpenseBreakdown,
 } from "../data/financeStorage";
-import { getSessionName } from "../data/financeStorage";
+import { apiUrl } from "../data/api";
 
 const formatarMoeda = (valor) =>
   new Intl.NumberFormat("pt-BR", {
@@ -41,21 +40,12 @@ const Icon = ({ children, size = 18 }) => (
 );
 
 export default function Overview() {
-  const nomeUsuario = getSessionName();
-
   const [estabelecimento, setEstabelecimento] = useState(null);
 
   const [vendas, setVendas] = useState([]);
   const [despesas, setDespesas] = useState([]);
   const [carregandoFinanceiro, setCarregandoFinanceiro] = useState(true);
   const [erroFinanceiro, setErroFinanceiro] = useState("");
-
-  const iniciais = nomeUsuario
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((parte) => parte[0].toUpperCase())
-    .join("");
 
   useEffect(() => {
     const proprietarioId = getSessionUser();
@@ -67,8 +57,8 @@ export default function Overview() {
 
     async function carregarDados() {
       try {
-        const respostaEstabelecimento = await fetch(
-          `http://localhost:8080/api/estabelecimentos/proprietario/${proprietarioId}`,
+        const respostaEstabelecimento = await apiFetch(
+          apiUrl(`/estabelecimentos/proprietario/${proprietarioId}`),
         );
 
         if (!respostaEstabelecimento.ok) {
@@ -87,8 +77,8 @@ export default function Overview() {
         const id = estabelecimentoAtual.id;
 
         const [respostaVendas, respostaDespesas] = await Promise.all([
-          fetch(`http://localhost:8080/api/vendas/estabelecimento/${id}`),
-          fetch(`http://localhost:8080/api/despesas/estabelecimento/${id}`),
+          apiFetch(apiUrl(`/vendas/estabelecimento/${id}`)),
+          apiFetch(apiUrl(`/despesas/estabelecimento/${id}`)),
         ]);
 
         if (!respostaVendas.ok || !respostaDespesas.ok) {
@@ -150,30 +140,6 @@ export default function Overview() {
   const despesasRecentes = [...despesas]
     .sort((a, b) => String(b.dataHora).localeCompare(String(a.dataHora)))
     .slice(0, 6);
-  const [menuAberto, setMenuAberto] = useState(false);
-  const perfilRef = useRef(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fecharAoClicarFora = (event) => {
-      if (perfilRef.current && !perfilRef.current.contains(event.target))
-        setMenuAberto(false);
-    };
-    const fecharComEscape = (event) => {
-      if (event.key === "Escape") setMenuAberto(false);
-    };
-    document.addEventListener("mousedown", fecharAoClicarFora);
-    document.addEventListener("keydown", fecharComEscape);
-    return () => {
-      document.removeEventListener("mousedown", fecharAoClicarFora);
-      document.removeEventListener("keydown", fecharComEscape);
-    };
-  }, []);
-
-  const sairDaConta = () => {
-    clearSessionUser();
-    navigate("/login");
-  };
 
   return (
     <>
@@ -185,65 +151,6 @@ export default function Overview() {
               ? `Acompanhe os resultados de ${estabelecimento.nome}.`
               : "Acompanhe os resultados do seu negócio."}
           </p>
-        </div>
-        <div className="profile-wrapper" ref={perfilRef}>
-          <button
-            className="profile"
-            type="button"
-            aria-expanded={menuAberto}
-            aria-haspopup="menu"
-            onClick={() => setMenuAberto((aberto) => !aberto)}
-          >
-            <div className="profile-avatar">{iniciais}</div>
-            <div className="profile-info">
-              <strong>{nomeUsuario}</strong>
-              <span>Proprietário</span>
-            </div>
-            <svg
-              className={`profile-chevron${menuAberto ? " open" : ""}`}
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </button>
-          {menuAberto && (
-            <div className="profile-menu" role="menu">
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setMenuAberto(false);
-                  navigate("/dashboard/perfil");
-                }}
-              >
-                <Icon size={16}>
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 21a8 8 0 0 1 16 0" />
-                </Icon>
-                Meu perfil
-              </button>
-
-              <button
-                type="button"
-                role="menuitem"
-                className="logout-action"
-                onClick={sairDaConta}
-              >
-                <Icon size={16}>
-                  <path d="M10 17l5-5-5-5" />
-                  <path d="M15 12H3" />
-                  <path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5" />
-                </Icon>
-                Sair da conta
-              </button>
-            </div>
-          )}
         </div>
       </header>
       <section className="cards">

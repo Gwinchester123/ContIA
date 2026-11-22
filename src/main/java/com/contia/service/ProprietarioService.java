@@ -5,6 +5,8 @@ import com.contia.model.Proprietario;
 import com.contia.repository.ProprietarioRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ProprietarioService {
@@ -85,5 +87,28 @@ public class ProprietarioService {
         }
 
         return proprietario;
+    }
+
+    public Proprietario buscarPorId(Long proprietarioId) {
+        return proprietarioRepository.findById(proprietarioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proprietário não encontrado."));
+    }
+
+    public void alterarSenha(Long proprietarioId, String senhaAtual, String novaSenha) {
+        Proprietario proprietario = buscarPorId(proprietarioId);
+        if (senhaAtual == null || senhaAtual.isBlank() || novaSenha == null || novaSenha.isBlank()) {
+            throw new IllegalArgumentException("Preencha a senha atual e a nova senha.");
+        }
+        if (!passwordEncoder.matches(senhaAtual, proprietario.getSenha())) {
+            throw new IllegalArgumentException("A senha atual está incorreta.");
+        }
+        if (novaSenha.length() < 8) {
+            throw new IllegalArgumentException("A nova senha deve ter pelo menos 8 caracteres.");
+        }
+        if (passwordEncoder.matches(novaSenha, proprietario.getSenha())) {
+            throw new IllegalArgumentException("A nova senha deve ser diferente da senha atual.");
+        }
+        proprietario.setSenha(passwordEncoder.encode(novaSenha));
+        proprietarioRepository.save(proprietario);
     }
 }
