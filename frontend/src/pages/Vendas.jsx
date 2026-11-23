@@ -3,27 +3,40 @@ import useFinanceData from '../hooks/useFinanceData'
 import { addSale, formatCurrency, removeSale } from '../data/financeStorage'
 
 export default function Vendas() {
-  const { vendas } = useFinanceData()
+  const { vendas, erro } = useFinanceData()
+  const [erroOperacao, setErroOperacao] = useState('')
   const [produto, setProduto] = useState('')
   const [quantidade, setQuantidade] = useState('')
   const [valorUnitario, setValorUnitario] = useState('')
   const total = (Number(quantidade) || 0) * (Number(valorUnitario) || 0)
 
-  const registrarVenda = (event) => {
+  const registrarVenda = async (event) => {
     event.preventDefault()
     const qtd = Number(quantidade)
     const valor = Number(valorUnitario)
     if (!produto.trim() || !Number.isInteger(qtd) || qtd <= 0 || !Number.isFinite(valor) || valor <= 0) return
-    addSale({ produto: produto.trim(), quantidade: qtd, valorUnitario: valor, total: qtd * valor, data: new Date().toISOString() })
-    setProduto(''); setQuantidade(''); setValorUnitario('')
+    setErroOperacao('')
+    try {
+      await addSale({ produto: produto.trim(), quantidade: qtd, valorUnitario: valor, total: qtd * valor, data: new Date().toISOString() })
+      setProduto(''); setQuantidade(''); setValorUnitario('')
+    } catch (error) {
+      setErroOperacao(error.message)
+    }
   }
 
-  const excluirVenda = (venda) => {
-    if (window.confirm(`Excluir a venda de ${venda.produto}?`)) removeSale(venda.id)
+  const excluirVenda = async (venda) => {
+    if (!window.confirm(`Excluir a venda de ${venda.produto}?`)) return
+    setErroOperacao('')
+    try {
+      await removeSale(venda.id)
+    } catch (error) {
+      setErroOperacao(error.message)
+    }
   }
 
   return <>
     <header><div><h1>Vendas</h1><p>Registre vendas informando apenas os dados da transação.</p></div></header>
+    {(erro || erroOperacao) && <p className="data-error" role="alert">{erro || erroOperacao}</p>}
     <section className="panel registration-panel">
       <h3>Nova venda</h3>
       <form className="compact-form" onSubmit={registrarVenda}>

@@ -3,26 +3,39 @@ import useFinanceData from '../hooks/useFinanceData'
 import { addExpense, formatCurrency, removeExpense } from '../data/financeStorage'
 
 export default function Despesas() {
-  const { despesas } = useFinanceData()
+  const { despesas, erro } = useFinanceData()
+  const [erroOperacao, setErroOperacao] = useState('')
   const [descricao, setDescricao] = useState('')
   const [categoria, setCategoria] = useState('Ingredientes')
   const [valor, setValor] = useState('')
   const [data, setData] = useState(new Date().toISOString().slice(0, 10))
 
-  const registrarDespesa = (event) => {
+  const registrarDespesa = async (event) => {
     event.preventDefault()
     const valorDespesa = Number(valor)
     if (!descricao.trim() || !data || !Number.isFinite(valorDespesa) || valorDespesa <= 0) return
-    addExpense({ descricao: descricao.trim(), categoria, valor: valorDespesa, data })
-    setDescricao(''); setValor(''); setCategoria('Ingredientes'); setData(new Date().toISOString().slice(0, 10))
+    setErroOperacao('')
+    try {
+      await addExpense({ descricao: descricao.trim(), categoria, valor: valorDespesa, data })
+      setDescricao(''); setValor(''); setCategoria('Ingredientes'); setData(new Date().toISOString().slice(0, 10))
+    } catch (error) {
+      setErroOperacao(error.message)
+    }
   }
 
-  const excluirDespesa = (despesa) => {
-    if (window.confirm(`Excluir a despesa ${despesa.descricao}?`)) removeExpense(despesa.id)
+  const excluirDespesa = async (despesa) => {
+    if (!window.confirm(`Excluir a despesa ${despesa.descricao}?`)) return
+    setErroOperacao('')
+    try {
+      await removeExpense(despesa.id)
+    } catch (error) {
+      setErroOperacao(error.message)
+    }
   }
 
   return <>
     <header><div><h1>Despesas</h1><p>Registre os gastos e consulte seu histórico por categoria.</p></div></header>
+    {(erro || erroOperacao) && <p className="data-error" role="alert">{erro || erroOperacao}</p>}
     <section className="panel registration-panel"><h3>Nova despesa</h3>
       <form className="compact-form" onSubmit={registrarDespesa}>
         <label>Descrição<input value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Ex.: Compra de carne" required /></label>

@@ -442,6 +442,16 @@ td:first-child {
   text-decoration: none;
 }
 
+.auth-error,
+.data-error {
+  color: #a33b32;
+  font-size: 13px;
+}
+
+.data-error {
+  margin: -12px 0 18px;
+}
+
 .reports-cards {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }

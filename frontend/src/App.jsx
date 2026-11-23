@@ -8,8 +8,11 @@ import Despesas from './pages/Despesas'
 import Relatorios from './pages/Relatorios'
 import Login from './pages/Login'
 import Cadastro from './pages/Cadastro'
+import { getSessionUser } from './data/financeStorage'
 
 function DashboardLayout() {
+  if (!getSessionUser()) return <Navigate to="/login" replace />
+
   return (
     <div className="container">
       <Sidebar />

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerUser, setSessionUser } from '../data/financeStorage'
+import { migrateLegacyData, registerUser, setSessionUser } from '../data/financeStorage'
 
 export default function Cadastro() {
   const navigate = useNavigate()
@@ -8,12 +8,17 @@ export default function Cadastro() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
-  const cadastrar = (event) => {
+  const cadastrar = async (event) => {
     event.preventDefault()
-    const account = registerUser({ name: nome, email, password: senha })
-    if (!account) { setErro('Já existe uma conta com este e-mail.'); return }
-    setSessionUser(account.id)
-    navigate('/dashboard')
+    setErro('')
+    try {
+      const account = await registerUser({ name: nome, email, password: senha })
+      setSessionUser(account)
+      await migrateLegacyData(account.email)
+      navigate('/dashboard')
+    } catch (error) {
+      setErro(error.message)
+    }
   }
 
   return (
@@ -25,7 +30,7 @@ export default function Cadastro() {
         <label>Nome<input type="text" value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Seu nome" required /></label>
         <label>E-mail<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@email.com" required /></label>
         <label>Senha<input type="password" value={senha} onChange={(event) => setSenha(event.target.value)} placeholder="Crie uma senha" required /></label>
-        {erro && <p className="auth-error">{erro}</p>}
+        {erro && <p className="auth-error" role="alert">{erro}</p>}
         <button className="primary-button" type="submit">Cadastrar</button>
         <div className="auth-links"><span>Já tem uma conta?</span> <Link to="/">Entrar</Link></div>
       </form>

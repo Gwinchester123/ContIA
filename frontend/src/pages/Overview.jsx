@@ -11,7 +11,7 @@ const formatarMoeda = (valor) => new Intl.NumberFormat('pt-BR', { style: 'curren
 const Icon = ({ children, size = 18 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
 
 export default function Overview() {
-  const { vendas, despesas } = useFinanceData()
+  const { vendas, despesas, erro } = useFinanceData()
   const resumo = getFinancialSummary(vendas, despesas)
   const faturamentoSemanal = Array.from({ length: 7 }, (_, index) => {
     const data = new Date()
@@ -64,6 +64,7 @@ export default function Overview() {
         )}
       </div>
     </header>
+    {erro && <p className="data-error" role="alert">{erro}</p>}
     <section className="cards">
       <div className="card"><div className="card-title"><span>Faturamento total</span><div className="card-icon"><Icon size={16}><path d="M12 2v20" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></Icon></div></div><h2>{formatCurrency(resumo.faturamento)}</h2></div>
             <div className="card"><div className="card-title"><span>Compras e custos</span><div className="card-icon"><Icon size={16}><path d="M20 12a8 8 0 1 1-2.34-5.66" /><path d="M20 4v8h-8" /></Icon></div></div><h2>{formatCurrency(resumo.compras)}</h2></div>

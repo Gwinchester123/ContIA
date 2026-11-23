@@ -2,7 +2,7 @@ import useFinanceData from '../hooks/useFinanceData'
 import { formatCurrency, getFinancialSummary, getSalesTotal } from '../data/financeStorage'
 
 export default function Relatorios() {
-  const { vendas, despesas } = useFinanceData()
+  const { vendas, despesas, erro } = useFinanceData()
   const resumo = getFinancialSummary(vendas, despesas)
   const categorias = despesas.reduce((agrupadas, despesa) => {
     const atual = agrupadas.find((item) => item.categoria === despesa.categoria)
@@ -14,6 +14,7 @@ export default function Relatorios() {
   return (
     <>
       <header><div><h1>Relatórios</h1><p>Resumo financeiro simples do seu negócio.</p></div></header>
+      {erro && <p className="data-error" role="alert">{erro}</p>}
       <section className="cards reports-cards">
         <div className="card"><div className="card-title"><span>Total de vendas</span></div><h2>{vendas.length}</h2></div>
         <div className="card"><div className="card-title"><span>Total de despesas</span></div><h2>{formatCurrency(resumo.despesas)}</h2></div>
