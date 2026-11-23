@@ -47,10 +47,10 @@ public class FinanceController {
 			@RequestBody SaleRequest request) {
 		Account account = account(accountId);
 		validateSale(request);
-		BigDecimal total = request.unitValue().multiply(BigDecimal.valueOf(request.quantity()))
+		BigDecimal total = request.valorUnitario().multiply(BigDecimal.valueOf(request.quantidade()))
 				.setScale(2, RoundingMode.HALF_UP);
-		Sale sale = sales.save(new Sale(account, request.product().trim(), request.quantity(),
-				request.unitValue().setScale(2, RoundingMode.HALF_UP), total,
+		Sale sale = sales.save(new Sale(account, request.produto().trim(), request.quantidade(),
+				request.valorUnitario().setScale(2, RoundingMode.HALF_UP), total,
 				request.data() == null ? Instant.now() : parseInstant(request.data())));
 		return saleResponse(sale);
 	}
@@ -139,8 +139,8 @@ public class FinanceController {
 	}
 
 	private static void validateSale(SaleRequest request) {
-		if (request.product() == null || request.product().isBlank() || request.product().length() > 200
-				|| request.quantity() <= 0 || !validAmount(request.unitValue())) {
+		if (request.produto() == null || request.produto().isBlank() || request.produto().length() > 200
+				|| request.quantidade() <= 0 || !validAmount(request.valorUnitario())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dados da venda inválidos.");
 		}
 	}
