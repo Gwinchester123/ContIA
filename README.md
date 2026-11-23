@@ -1,31 +1,36 @@
 # ContIA
 
-## Conectar ao Neon
+## Backend e bancos de dados
 
-O backend usa o endpoint pooler da branch `production` mostrado na captura, com o banco `neondb`, usuário `neondb_owner` e SSL habilitado. A URL e o usuário já estão configurados como padrão; podem ser substituídos por variáveis de ambiente. Como a senha da captura está ocultada, configure-a localmente sem incluí-la no código ou em mensagens.
+O backend usa o PostgreSQL local por padrão. Sem `SPRING_PROFILES_ACTIVE`, o Spring carrega `src/main/resources/application.properties`, que aponta para `jdbc:postgresql://localhost:5432/contia` e continua usando `DB_PASSWORD` como já fazia.
 
-No PowerShell, defina as variáveis antes de iniciar o backend:
+### PostgreSQL local
+
+Defina a senha local no ambiente e inicie o backend:
 
 ```powershell
-$env:NEON_DATABASE_PASSWORD = "<senha-do-neon>"
-$env:CONTIA_JWT_SECRET = "<chave-aleatoria-com-pelo-menos-32-caracteres>"
-$env:CONTIA_FRONTEND_ORIGIN = "http://localhost:5173"
+$env:DB_PASSWORD = "senha-do-postgres-local"
 .\mvnw.cmd spring-boot:run
 ```
 
-Se o endpoint da sua branch for diferente, defina também `NEON_JDBC_URL` no formato `jdbc:postgresql://<endpoint>/neondb?sslmode=require&channel_binding=require`; se necessário, substitua `NEON_DATABASE_USERNAME`. O backend cria/atualiza as tabelas `accounts`, `sales` e `expenses` ao iniciar. As senhas das contas são armazenadas com hash BCrypt e cada registro financeiro fica associado à conta autenticada.
+No IntelliJ ou outra IDE, configure `DB_PASSWORD` nas variáveis de ambiente da configuração de execução. Não é necessário configurar `DB_URL` ou `DB_USERNAME` para usar o perfil local.
 
-Em outro terminal, inicie a interface:
+### Neon
+
+Configure as três variáveis no ambiente de execução. `DB_URL` deve ser uma URL JDBC sem usuário ou senha; o perfil aplica `sslmode=require` na conexão.
+
+Exemplo no PowerShell:
 
 ```powershell
-$env:VITE_API_URL = "http://localhost:8080/api"
-npm.cmd --prefix frontend run dev
+$env:SPRING_PROFILES_ACTIVE = "neon"
+$env:DB_URL = "jdbc:postgresql://seu-endpoint.neon.tech/nome_do_banco"
+$env:DB_USERNAME = "seu_usuario"
+$env:DB_PASSWORD = "sua_senha"
+.\mvnw.cmd spring-boot:run
 ```
 
-Configure `NEON_JDBC_URL`, `NEON_DATABASE_USERNAME`, `NEON_DATABASE_PASSWORD` e `CONTIA_JWT_SECRET` também no ambiente do serviço onde o backend for publicado. Nunca use credenciais do Neon no frontend.
+No IntelliJ, preencha `SPRING_PROFILES_ACTIVE=neon`, `DB_URL`, `DB_USERNAME` e `DB_PASSWORD` nas variáveis de ambiente da configuração de execução.
 
-## Migração do armazenamento local
+O perfil `neon` está definido em `src/main/resources/application-neon.properties`. Os dois perfis usam `spring.jpa.hibernate.ddl-auto=validate`: o Hibernate valida o schema existente sem criar ou atualizar tabelas. A aplicação não executa migrações automaticamente.
 
-No primeiro login de uma conta antiga, use o mesmo e-mail e senha já cadastrados no navegador. A aplicação cria a conta no backend com senha protegida e importa vendas e despesas locais em uma transação. Os dados locais só são removidos depois que o Neon confirma a importação. Se a conta só tinha registros antigos associados ao e-mail, sem cadastro local, o primeiro login cria a conta usando a senha informada.
-
-Contas novas e registros financeiros passam a ser gravados no backend/Neon. O token de sessão fica apenas no `sessionStorage` do navegador.
+Arquivos `.env`, `.env.*`, `application-local.properties` e `application-*.local.properties` são ignorados pelo Git. O Spring Boot não carrega arquivos `.env` automaticamente; configure as variáveis no terminal, no ambiente de implantação ou na IDE. Não salve credenciais em arquivos versionados.

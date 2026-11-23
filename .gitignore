@@ -31,3 +31,32 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local secrets and environment files ###
+.env
+.env.*
+!.env.example
+application-local.properties
+application-*.local.properties
+
+# Logs, local backups, and temporary artifacts
+*.log
+/logs/
+*.dump
+*.backup
+*.bak
+*.tmp
+*.temp
+*.swp
+/backups/
+backup-*.sql
+backup*.sql
+*_backup.sql
+*-backup.sql
+*.backup.sql
+*.dump.sql
+*.bak.sql
+*.sql.backup
+*.sql.bak
+*.sql.dump
+*.sql.gz
