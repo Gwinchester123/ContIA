@@ -47,6 +47,26 @@ function getRequestBody(req) {
   return Readable.toWeb(req);
 }
 
+export function getProxyTargetUrl(requestUrl, backendOrigin) {
+  const incomingUrl = new URL(requestUrl, backendOrigin);
+  const proxyPath = incomingUrl.searchParams.get("_proxyPath");
+  if (proxyPath === null) return null;
+
+  const encodedPath = proxyPath
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+  const targetUrl = new URL(`/api/${encodedPath}`, backendOrigin);
+  const isApiPath =
+    targetUrl.pathname === "/api" || targetUrl.pathname.startsWith("/api/");
+  if (targetUrl.origin !== backendOrigin || !isApiPath) return null;
+
+  for (const [name, value] of incomingUrl.searchParams) {
+    if (name !== "_proxyPath") targetUrl.searchParams.append(name, value);
+  }
+  return targetUrl;
+}
+
 export default async function handler(req, res) {
   const backendUrl = process.env.BACKEND_URL?.trim();
   if (!backendUrl) {
@@ -64,14 +84,11 @@ export default async function handler(req, res) {
   }
 
   const method = (req.method || "GET").toUpperCase();
-  const requestUrl = req.url || "/api";
-  const targetUrl = new URL(requestUrl, backendOrigin);
-  const isApiPath =
-    targetUrl.pathname === "/api" || targetUrl.pathname.startsWith("/api/");
-  if (
-    targetUrl.origin !== backendOrigin ||
-    !isApiPath
-  ) {
+  const targetUrl = getProxyTargetUrl(
+    req.url || "/api/_proxy",
+    backendOrigin,
+  );
+  if (!targetUrl) {
     sendJson(res, 404, "Not found.");
     return;
   }
