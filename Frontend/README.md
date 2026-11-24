@@ -61,6 +61,8 @@ O backend Spring precisa ser implantado em um serviço que execute Java 25 ou Do
 
 No projeto do frontend no Vercel, configure `BACKEND_URL` como a origem HTTPS do backend, sem `/api` no final (por exemplo, `https://contia-api.exemplo.com`). Configure-a nos ambientes Production e Preview que for usar, depois faça um novo deploy. A raiz do projeto Vercel deve ser `Frontend` para que a função em `api/` seja detectada. Não configure `VITE_API_BASE_URL` no Vercel.
 
+O `vercel.json` encaminha as rotas da aplicação para `index.html`, permitindo recarregar diretamente páginas como `/dashboard/vendas` sem receber uma página de erro do Vercel.
+
 O backend escuta a porta informada pelo provedor por meio de `PORT`, usando `8080` como padrão. A função de proxy remove o cabeçalho `Origin`, então CORS não é necessário nessa comunicação. Se o frontend chamar o backend diretamente em outro domínio, configure `CONTIA_CORS_ALLOWED_ORIGINS` com a origem do frontend.
 
 O ContIA usa PWA; em produção, publique o frontend em HTTPS e sirva a aplicação na raiz do domínio para manter o escopo atual do Service Worker e do Manifest.

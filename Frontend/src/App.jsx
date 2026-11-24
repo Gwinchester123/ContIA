@@ -13,7 +13,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Cadastro = lazy(() => import("./pages/Cadastro"));
 const CadastroEstabelecimento = lazy(() => import("./pages/CadastroEstabelecimento"));
 const MeuPerfil = lazy(() => import("./pages/MeuPerfil"));
-import { apiFetch, clearSessionUser, getSessionToken, getSessionName, setSessionUser } from "./data/financeStorage";
+import { apiFetch, clearSessionUser, getSessionProfile, getSessionToken, getSessionName, setSessionUser } from "./data/financeStorage";
 import { aplicarAtualizacaoPwa, assinarEstadoPwa, obterEstadoPwa } from "./pwa";
 import { apiUrl } from "./data/api";
 const Funcionarios = lazy(() => import("./pages/Funcionarios"));
@@ -21,9 +21,10 @@ const InicioFuncionario = lazy(() => import("./pages/InicioFuncionario"));
 
 function DashboardLayout() {
   const [drawerAberto, setDrawerAberto] = useState(false);
-  const [profile, setProfile] = useState("");
+  const [profile, setProfile] = useState(getSessionProfile);
   const [premium, setPremium] = useState(false);
   const [verificando, setVerificando] = useState(true);
+  const [erroValidacao, setErroValidacao] = useState("");
   const isProprietario = profile === "PROPRIETARIO";
 
   useEffect(() => {
@@ -34,7 +35,10 @@ function DashboardLayout() {
     }
     apiFetch(apiUrl("/auth/me"))
       .then(async (resposta) => {
-        if (!resposta.ok) throw new Error("Sessão inválida");
+        if (!resposta.ok) {
+          if ([401, 403].includes(resposta.status)) clearSessionUser();
+          throw new Error("Não foi possível validar a sessão.");
+        }
         const usuario = await resposta.json();
         let temPremium = false;
         if (usuario.perfil === "PROPRIETARIO") {
@@ -49,12 +53,19 @@ function DashboardLayout() {
         if (ativo) {
           setProfile(usuario.perfil || "");
           setPremium(temPremium);
+          setErroValidacao("");
           setSessionUser({ ...usuario, nome: getSessionName(), token: getSessionToken() });
         }
       })
       .catch(() => {
-        clearSessionUser();
-        if (ativo) setProfile("");
+        if (!ativo) return;
+        if (getSessionToken()) {
+          setProfile(getSessionProfile());
+          setErroValidacao("Não foi possível validar sua sessão agora. Verifique sua conexão e tente novamente.");
+        } else {
+          setProfile("");
+          setErroValidacao("");
+        }
       })
       .finally(() => { if (ativo) setVerificando(false); });
     return () => { ativo = false; };
@@ -115,6 +126,7 @@ function DashboardLayout() {
 
         <main className="main">
           <div className="dashboard-topbar"><AccountMenu profile={profile} /></div>
+          {erroValidacao && <p className="auth-error" role="status">{erroValidacao}</p>}
           <Suspense fallback={<div className="route-loading" role="status">Carregando página...</div>}>
             <Routes>
               <Route index element={isProprietario ? <Overview /> : <InicioFuncionario />} />

@@ -4,6 +4,10 @@
     {
       "source": "/api/:path((?!proxy$).*)",
       "destination": "/api/proxy?_proxyPath=:path"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
