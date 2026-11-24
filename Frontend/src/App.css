@@ -86,6 +86,19 @@ body {
   text-decoration: none;
 }
 
+.sidebar a.brand-link,
+.sidebar a.brand-link.active,
+.sidebar a.brand-link:hover,
+.sidebar a.brand-link:focus-visible {
+  width: auto;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font-weight: inherit;
+}
+
 .mobile-brand {
   display: flex;
   align-items: center;
