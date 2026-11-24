@@ -45,3 +45,5 @@ Implante o projeto da pasta `Backend` em um serviço com Java 25 ou Docker. O [D
 O serviço lê a porta atribuída pelo provedor por meio de `PORT` (padrão `8080`). O exemplo das variáveis de banco está em `Backend/.env.example`; o Spring Boot não carrega arquivos `.env` automaticamente. Não salve credenciais em arquivos versionados.
 
 O perfil `neon`, em `Backend/src/main/resources/application-neon.properties`, exige um schema já criado e usa `spring.jpa.hibernate.ddl-auto=validate`; a aplicação não executa migrações automaticamente. Os scripts SQL disponíveis estão em `Backend/db/migrations`.
+
+O script `Backend/db/migrations/2026-11-24_corrigir_data_venda_copo.sql` corrige a venda de copo informada em 24/11/2026 às 00:33 para 23/11/2026 às 21:30. Ele aborta sem alterar dados se não encontrar exatamente uma venda correspondente; execute-o manualmente no banco de produção.
