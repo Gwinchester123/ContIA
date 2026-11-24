@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,6 +49,7 @@ final class RelatorioPdfRenderer {
     private static final java.awt.Color PALE = new java.awt.Color(248, 250, 248);
     private static final Set<String> CUSTOS_INSUMOS = Set.of("ingredientes", "materiais", "insumos", "embalagens");
     private static final Locale PT_BR = Locale.forLanguageTag("pt-BR");
+    private static final ZoneId FUSO_HORARIO = ZoneId.of("America/Fortaleza");
     private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy", PT_BR);
     private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", PT_BR);
     private static final String OBSERVACAO = "Valor calculado com base nas vendas e despesas registradas no sistema. Não representa necessariamente o lucro líquido contábil.";
@@ -106,7 +108,7 @@ final class RelatorioPdfRenderer {
         contexto.setSpacingAfter(5);
         contexto.addCell(meta("ESTABELECIMENTO", analise.estabelecimento()));
         contexto.addCell(meta("PERÍODO", DATA.format(analise.inicio()) + " a " + DATA.format(analise.fim())));
-        contexto.addCell(meta("GERADO EM", DATA_HORA.format(LocalDateTime.now())));
+        contexto.addCell(meta("GERADO EM", DATA_HORA.format(LocalDateTime.now(FUSO_HORARIO))));
         document.add(contexto);
     }
 

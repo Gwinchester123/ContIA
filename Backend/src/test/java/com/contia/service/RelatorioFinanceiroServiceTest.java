@@ -12,8 +12,12 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,6 +69,27 @@ class RelatorioFinanceiroServiceTest {
 
         assertTrue(pdf.length > 100);
         assertTrue(new String(pdf, 0, 5, java.nio.charset.StandardCharsets.US_ASCII).startsWith("%PDF-"));
+    }
+
+    @Test
+    void pdfUsaHorarioAtualNoFusoDeFortalezaMesmoComServidorEmUtc() throws Exception {
+        TimeZone fusoOriginal = TimeZone.getDefault();
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+            ZoneId fusoFortaleza = ZoneId.of("America/Fortaleza");
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.forLanguageTag("pt-BR"));
+            LocalDate inicio = LocalDate.of(2026, 3, 10);
+            String horarioAntes = formato.format(LocalDateTime.now(fusoFortaleza));
+            var leitor = new com.lowagie.text.pdf.PdfReader(service.gerarPdf(7L, 15L, inicio, inicio));
+            String texto = new com.lowagie.text.pdf.parser.PdfTextExtractor(leitor).getTextFromPage(1);
+            leitor.close();
+            String horarioDepois = formato.format(LocalDateTime.now(fusoFortaleza));
+
+            assertTrue(texto.contains(horarioAntes) || texto.contains(horarioDepois),
+                    "o PDF deve mostrar o horário atual no fuso de Fortaleza");
+        } finally {
+            TimeZone.setDefault(fusoOriginal);
+        }
     }
 
     @Test
