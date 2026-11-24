@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getProxyTargetUrl } from "../../api/_proxy.js";
+import { getProxyTargetUrl } from "../../api/proxy.js";
 
 test("rewrites nested API paths and preserves query parameters", () => {
   const target = getProxyTargetUrl(
-    "/api/_proxy?_proxyPath=funcionarios%2Flogin&source=web",
+    "/api/proxy?_proxyPath=funcionarios%2Flogin&source=web",
     "https://backend.example.com",
   );
 
@@ -16,12 +16,12 @@ test("rewrites nested API paths and preserves query parameters", () => {
 
 test("rejects requests without a proxy path or attempting to leave /api", () => {
   assert.equal(
-    getProxyTargetUrl("/api/_proxy", "https://backend.example.com"),
+    getProxyTargetUrl("/api/proxy", "https://backend.example.com"),
     null,
   );
   assert.equal(
     getProxyTargetUrl(
-      "/api/_proxy?_proxyPath=..%2Fadmin",
+      "/api/proxy?_proxyPath=..%2Fadmin",
       "https://backend.example.com",
     ),
     null,
