@@ -274,9 +274,14 @@ export default function Despesas() {
 
             {!editandoId && (
               <div className="expense-batch-actions">
-                <button className="profile-back-button" type="button" onClick={() => setLancamentos((atuais) => [...atuais, novoLancamento()])}>
-                  Adicionar lançamento
-                </button>
+                <div className="expense-batch-buttons">
+                  <button className="profile-back-button" type="button" onClick={() => setLancamentos((atuais) => [...atuais, novoLancamento()])}>
+                    Adicionar lançamento
+                  </button>
+                  <button className="primary-button" type="submit" disabled={salvando || !estabelecimentoId}>
+                    {salvando ? "Salvando..." : "Salvar lançamentos"}
+                  </button>
+                </div>
                 <div className="expense-batch-total">
                   <span>Total das despesas</span>
                   <strong>{formatCurrency(totalLancamentos)}</strong>
@@ -284,12 +289,12 @@ export default function Despesas() {
               </div>
             )}
 
-            <div className="expense-form-actions">
+            {editandoId && <div className="expense-form-actions">
               <button className="primary-button" type="submit" disabled={salvando || !estabelecimentoId}>
-                {salvando ? "Salvando..." : editandoId ? "Salvar alterações" : "Salvar lançamentos"}
+                {salvando ? "Salvando..." : "Salvar alterações"}
               </button>
-              {editandoId && <button className="profile-back-button" type="button" onClick={cancelarEdicao}>Cancelar</button>}
-            </div>
+              <button className="profile-back-button" type="button" onClick={cancelarEdicao}>Cancelar</button>
+            </div>}
           </form>
           {sucesso && <p role="status">{sucesso}</p>}
           {erro && <p className="error-message" role="alert">{erro}</p>}
