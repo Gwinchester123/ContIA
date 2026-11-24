@@ -1,34 +1,45 @@
 const SESSION_USER_KEY = "contia-session-user";
 const STORAGE_EVENT = "contia-finance-updated";
 
+const getSessionValue = (key) => {
+  const value = localStorage.getItem(key);
+  if (value !== null) return value;
+  const legacyValue = sessionStorage.getItem(key);
+  if (legacyValue !== null) {
+    localStorage.setItem(key, legacyValue);
+    sessionStorage.removeItem(key);
+  }
+  return legacyValue || "";
+};
+
 export const createId = () =>
   globalThis.crypto?.randomUUID?.() ||
   `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 export const getSessionUser = () =>
-  sessionStorage.getItem(SESSION_USER_KEY) || "";
+  getSessionValue(SESSION_USER_KEY);
 export const getSessionEstablishment = () =>
-  sessionStorage.getItem("contia-session-establishment-id") || "";
+  getSessionValue("contia-session-establishment-id");
 export const setSessionUser = (userOrId) => {
   const userId = typeof userOrId === "object" ? userOrId?.id : userOrId;
 
-  sessionStorage.setItem(SESSION_USER_KEY, String(userId || "").trim());
+  localStorage.setItem(SESSION_USER_KEY, String(userId || "").trim());
 
   if (typeof userOrId === "object" && userOrId?.nome) {
-    sessionStorage.setItem("contia-session-name", userOrId.nome);
+    localStorage.setItem("contia-session-name", userOrId.nome);
   }
   if (typeof userOrId === "object" && userOrId?.token) {
-    sessionStorage.setItem("contia-session-token", userOrId.token);
-    sessionStorage.setItem("contia-session-profile", userOrId.perfil || "PROPRIETARIO");
+    localStorage.setItem("contia-session-token", userOrId.token);
+    localStorage.setItem("contia-session-profile", userOrId.perfil || "PROPRIETARIO");
     if (userOrId.estabelecimentoId) {
-      sessionStorage.setItem("contia-session-establishment-id", String(userOrId.estabelecimentoId));
+      localStorage.setItem("contia-session-establishment-id", String(userOrId.estabelecimentoId));
     } else {
-      sessionStorage.removeItem("contia-session-establishment-id");
+      localStorage.removeItem("contia-session-establishment-id");
     }
   }
 };
 
-export const getSessionToken = () => sessionStorage.getItem("contia-session-token") || "";
-export const getSessionProfile = () => sessionStorage.getItem("contia-session-profile") || "";
+export const getSessionToken = () => getSessionValue("contia-session-token");
+export const getSessionProfile = () => getSessionValue("contia-session-profile");
 
 export const apiFetch = (url, options = {}) => {
   const headers = new Headers(options.headers || {});
@@ -38,14 +49,19 @@ export const apiFetch = (url, options = {}) => {
 };
 
 export const getSessionName = () => {
-  return sessionStorage.getItem("contia-session-name") || "Proprietário";
+  return getSessionValue("contia-session-name") || "Proprietário";
 };
 export const clearSessionUser = () => {
-  sessionStorage.removeItem(SESSION_USER_KEY);
-  sessionStorage.removeItem("contia-session-name");
-  sessionStorage.removeItem("contia-session-token");
-  sessionStorage.removeItem("contia-session-profile");
-  sessionStorage.removeItem("contia-session-establishment-id");
+  for (const key of [
+    SESSION_USER_KEY,
+    "contia-session-name",
+    "contia-session-token",
+    "contia-session-profile",
+    "contia-session-establishment-id",
+  ]) {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  }
 };
 
 const storageKey = (collection, userId = getSessionUser()) =>
