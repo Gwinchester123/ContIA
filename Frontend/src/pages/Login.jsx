@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { apiFetch, clearSessionUser, setSessionUser } from "../data/financeStorage";
 import { API_BASE_URL } from "../data/api";
+import PasswordVisibilityButton from "../components/PasswordVisibilityButton";
 
 const API = API_BASE_URL;
 
@@ -56,7 +57,7 @@ export default function Login() {
           <h1>Bem-vindo de volta</h1>
           <p>Acesse o financeiro do seu negócio.</p>
           <label>E-mail ou usuário<input type="text" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@email.com" required /></label>
-          <label>Senha<div className="login-password-wrap"><input type={mostrarSenha ? "text" : "password"} autoComplete="current-password" value={senha} onChange={(event) => setSenha(event.target.value)} placeholder="Sua senha" required /><button type="button" onClick={() => setMostrarSenha((atual) => !atual)} aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}>{mostrarSenha ? "Ocultar" : "Mostrar"}</button></div></label>
+          <label>Senha<div className="login-password-wrap"><input type={mostrarSenha ? "text" : "password"} autoComplete="current-password" value={senha} onChange={(event) => setSenha(event.target.value)} placeholder="Sua senha" required /><PasswordVisibilityButton visible={mostrarSenha} onToggle={() => setMostrarSenha((atual) => !atual)} /></div></label>
           {erro && <p className="auth-error" role="alert">{erro}</p>}
           {mensagem && <p className="profile-success" role="status">{mensagem}</p>}
           <button className="primary-button" type="submit" disabled={carregando}>{carregando ? "Entrando..." : "Entrar"}</button>

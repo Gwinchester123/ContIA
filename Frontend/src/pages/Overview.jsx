@@ -126,21 +126,26 @@ export default function Overview() {
       (faturamentoPorDia.get(chave) || 0) + Number(venda.total || 0),
     );
   });
-  let faturamentoAcumulado = 0;
   const faturamentoHistorico = [...faturamentoPorDia.entries()]
     .sort(([dataA], [dataB]) => dataA.localeCompare(dataB))
-    .map(([chave, faturamentoDoDia]) => {
-      faturamentoAcumulado += faturamentoDoDia;
-      const data = new Date(`${chave}T12:00:00`);
+    .reduce(
+      (historico, [chave, faturamentoDoDia]) => {
+        const faturamentoAcumulado =
+          historico.totalAcumulado + faturamentoDoDia;
+        const data = new Date(`${chave}T12:00:00`);
 
-      return {
-        dia: data.toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-        }),
-        faturamento: faturamentoAcumulado,
-      };
-    });
+        historico.pontos.push({
+          dia: data.toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+          }),
+          faturamento: faturamentoAcumulado,
+        });
+        historico.totalAcumulado = faturamentoAcumulado;
+        return historico;
+      },
+      { pontos: [], totalAcumulado: 0 },
+    ).pontos;
   const despesasRecentes = [...despesas]
     .sort((a, b) => String(b.dataHora).localeCompare(String(a.dataHora)))
     .slice(0, 6);

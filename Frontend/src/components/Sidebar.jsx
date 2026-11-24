@@ -26,7 +26,9 @@ export default function Sidebar({ onNavigate, profile, premium }) {
   return (
     <aside className="sidebar" id="dashboard-navigation" aria-label="Navegação principal">
       <div className="sidebar-heading">
-        <div className="brand"><img src="/logo-contia.png" alt="ContIA" /></div>
+        <NavLink className="brand brand-link" to="/dashboard" onClick={onNavigate} aria-label="Ir para a tela inicial">
+          <img src="/logo-contia.png" alt="ContIA" />
+        </NavLink>
         <button className="sidebar-close" type="button" aria-label="Fechar menu" onClick={onNavigate}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
         </button>

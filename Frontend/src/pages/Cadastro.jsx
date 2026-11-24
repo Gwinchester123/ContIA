@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setSessionUser } from "../data/financeStorage";
 import { apiUrl } from "../data/api";
+import PasswordVisibilityButton from "../components/PasswordVisibilityButton";
 
 function formatarTelefone(valor) {
   const numeros = valor.replace(/\D/g, "").slice(0, 11);
@@ -27,6 +28,7 @@ export default function Cadastro() {
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const [mostrarSenhas, setMostrarSenhas] = useState(false);
 
   const cadastrar = async (event) => {
     event.preventDefault();
@@ -121,25 +123,33 @@ export default function Cadastro() {
 
         <label>
           Senha
-          <input
-            type="password"
-            value={senha}
-            onChange={(event) => setSenha(event.target.value)}
-            placeholder="Crie uma senha"
-            minLength={8}
-            required
-          />
+          <div className="login-password-wrap">
+            <input
+              type={mostrarSenhas ? "text" : "password"}
+              value={senha}
+              onChange={(event) => setSenha(event.target.value)}
+              placeholder="Crie uma senha"
+              minLength={8}
+              required
+            />
+            <PasswordVisibilityButton
+              visible={mostrarSenhas}
+              onToggle={() => setMostrarSenhas((atual) => !atual)}
+            />
+          </div>
         </label>
 
         <label>
           Confirmar senha
-          <input
-            type="password"
-            value={confirmarSenha}
-            onChange={(event) => setConfirmarSenha(event.target.value)}
-            placeholder="Digite sua senha novamente"
-            required
-          />
+          <div className="login-password-wrap">
+            <input
+              type={mostrarSenhas ? "text" : "password"}
+              value={confirmarSenha}
+              onChange={(event) => setConfirmarSenha(event.target.value)}
+              placeholder="Digite sua senha novamente"
+              required
+            />
+          </div>
         </label>
 
         {erro && <p className="auth-error">{erro}</p>}

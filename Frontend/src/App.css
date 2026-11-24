@@ -79,6 +79,19 @@ body {
   object-fit: contain;
 }
 
+.brand-link,
+.mobile-brand {
+  background: transparent;
+  border: 0;
+  text-decoration: none;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .sidebar nav {
   display: flex;
   flex-direction: column;
@@ -643,11 +656,39 @@ td:first-child {
 }
 
 .sale-item-remove {
+  display: grid;
+  width: 40px;
   height: 40px;
+  place-items: center;
+  align-self: end;
   border: 0;
+  border-radius: 8px;
   background: transparent;
-  color: #9b5148;
+  color: #c94a45;
   font: inherit;
+  cursor: pointer;
+}
+
+.sale-item-remove svg,
+.expense-remove-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.expense-remove-button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #c94a45;
   cursor: pointer;
 }
 
@@ -1674,8 +1715,31 @@ td:first-child {
 .login-card > p { margin-bottom: 2px; }
 .login-card label { color: #42564a; font-size: 13px; }
 .login-password-wrap { position: relative; }
-.login-password-wrap input { padding-right: 74px; }
-.login-password-wrap button { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); border: 0; background: transparent; color: #347a55; font: inherit; font-weight: 600; cursor: pointer; }
+.login-password-wrap input { padding-right: 48px; }
+.login-password-wrap .password-visibility {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #557162;
+  cursor: pointer;
+}
+.login-password-wrap .password-visibility svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .login-card .primary-button { min-height: 46px; }
 .login-presentation { position: relative; display: grid; align-items: center; min-height: 100vh; overflow: hidden; padding: clamp(40px, 8vw, 110px); background: linear-gradient(145deg, #173e31, #235d41 65%, #347a55); color: #fff; }
 .login-presentation::before, .login-presentation::after { position: absolute; content: ""; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; }

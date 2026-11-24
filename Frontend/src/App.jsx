@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import "./App.css";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
 import AccountMenu from "./components/AccountMenu";
@@ -121,7 +121,9 @@ function DashboardLayout() {
               )}
             </svg>
           </button>
-          <img src="/logo-contia.png" alt="ContIA" />
+          <Link className="mobile-brand" to="/dashboard" aria-label="Ir para a tela inicial">
+            <img src="/logo-contia.png" alt="ContIA" />
+          </Link>
         </div>
 
         <main className="main">

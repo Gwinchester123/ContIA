@@ -107,7 +107,7 @@ export default function MeuPerfil() {
           <div className="profile-field"><label htmlFor="confirmarSenha">Confirmar nova senha</label><input id="confirmarSenha" type={mostrarSenhas ? "text" : "password"} autoComplete="new-password" minLength="8" value={confirmarSenha} onChange={(event) => setConfirmarSenha(event.target.value)} required /></div>
         </div>
         {erroSenha && <p className="auth-error" role="alert">{erroSenha}</p>}
-        <div className="profile-actions"><button className="primary-button" type="submit" disabled={salvandoSenha}>{salvandoSenha ? "Alterando..." : "Alterar senha"}</button><button className="password-visibility-toggle" type="button" onClick={() => setMostrarSenhas((atual) => !atual)}>{mostrarSenhas ? "Ocultar senhas" : "Mostrar senhas"}</button></div>
+        <div className="profile-actions"><button className="primary-button" type="submit" disabled={salvandoSenha}>{salvandoSenha ? "Alterando..." : "Alterar senha"}</button></div>
       </form>
 
       <form className="profile-form" onSubmit={salvarEstabelecimento}>
