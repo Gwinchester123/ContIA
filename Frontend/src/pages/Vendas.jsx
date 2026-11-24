@@ -316,16 +316,18 @@ export default function Vendas({ somenteMinhas = false }) {
             </div>
 
             <div className="sale-form-footer">
-              <button className="profile-back-button" type="button" onClick={() => setItens((atuais) => [...atuais, novoItem()])}>
-                Adicionar item
-              </button>
+              <div className="sale-form-buttons">
+                <button className="profile-back-button" type="button" onClick={() => setItens((atuais) => [...atuais, novoItem()])}>
+                  Adicionar item
+                </button>
+                <button className="primary-button" type="submit" disabled={salvando || !estabelecimentoId || itens.length === 0}>
+                  {salvando ? "Salvando..." : editandoId ? "Salvar alterações" : "Registrar venda"}
+                </button>
+              </div>
               <div className="sale-grand-total">
                 <span>Total da venda</span>
                 <strong>{formatCurrency(total)}</strong>
               </div>
-              <button className="primary-button" type="submit" disabled={salvando || !estabelecimentoId || itens.length === 0}>
-                {salvando ? "Salvando..." : editandoId ? "Salvar alterações" : "Registrar venda"}
-              </button>
               {editandoId && <button className="profile-back-button" type="button" onClick={limparFormulario}>Cancelar</button>}
             </div>
           </form>

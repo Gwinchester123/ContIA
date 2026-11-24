@@ -2,6 +2,7 @@
 package com.contia.controller;
 
 import com.contia.model.Estabelecimento;
+import com.contia.model.PlanoEstabelecimento;
 import com.contia.service.EstabelecimentoService;
 import com.contia.security.UsuarioAutenticado;
 import org.springframework.security.access.AccessDeniedException;
@@ -30,6 +31,9 @@ public class EstabelecimentoController {
         Estabelecimento estabelecimento = new Estabelecimento();
         estabelecimento.setNome(request.nome());
         estabelecimento.setTipo(request.tipo());
+        if (request.plano() != null) {
+            estabelecimento.setPlano(request.plano());
+        }
 
         Estabelecimento salvo = estabelecimentoService.cadastrar(
                 usuario.id(), estabelecimento);
@@ -89,7 +93,8 @@ public EstabelecimentoResposta atualizarNome(
     public record EstabelecimentoRequest(
             String nome,
             String tipo,
-            Long proprietarioId
+            Long proprietarioId,
+            PlanoEstabelecimento plano
     ) {}
 
     public record EstabelecimentoResposta(

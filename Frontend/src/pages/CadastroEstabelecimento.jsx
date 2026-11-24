@@ -7,6 +7,7 @@ export default function CadastroEstabelecimento() {
   const navigate = useNavigate();
 
   const [nome, setNome] = useState("");
+  const [plano, setPlano] = useState("BASICO");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -34,6 +35,7 @@ export default function CadastroEstabelecimento() {
           body: JSON.stringify({
             nome,
             tipo: "Alimentação",
+            plano,
             proprietarioId: Number(proprietarioId),
           }),
         },
@@ -76,6 +78,14 @@ export default function CadastroEstabelecimento() {
             placeholder="Ex.: Espetinho do João"
             required
           />
+        </label>
+
+        <label>
+          Tipo de plano
+          <select value={plano} onChange={(event) => setPlano(event.target.value)}>
+            <option value="BASICO">Básico</option>
+            <option value="PREMIUM">Premium</option>
+          </select>
         </label>
 
         {erro && <p className="auth-error">{erro}</p>}

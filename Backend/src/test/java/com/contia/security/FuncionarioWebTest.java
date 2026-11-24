@@ -71,6 +71,30 @@ class FuncionarioWebTest {
     }
 
     @Test
+    void proprietarioEscolhePlanoPremiumAoCadastrarEstabelecimento() throws Exception {
+        prepararCadastroEstabelecimento();
+
+        mvc.perform(post("/api/estabelecimentos").header("Authorization", tokenProprietario())
+                        .contentType("application/json")
+                        .content("{\"nome\":\"Café ContIA\",\"tipo\":\"Alimentação\",\"plano\":\"PREMIUM\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.plano").value("PREMIUM"));
+
+        verify(estabelecimentos).save(argThat(e -> e.getPlano() == PlanoEstabelecimento.PREMIUM));
+    }
+
+    @Test
+    void estabelecimentoSemPlanoInformadoContinuaBasico() throws Exception {
+        prepararCadastroEstabelecimento();
+
+        mvc.perform(post("/api/estabelecimentos").header("Authorization", tokenProprietario())
+                        .contentType("application/json")
+                        .content("{\"nome\":\"Café ContIA\",\"tipo\":\"Alimentação\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.plano").value("BASICO"));
+    }
+
+    @Test
     void proprietarioListaSomenteSeusFuncionarios() throws Exception {
         when(funcionarios.findByEstabelecimentoProprietarioIdOrderByNomeAsc(41L))
                 .thenReturn(List.of(funcionario(71L, "Ana Lima", "ana@contia.com", 9L, true, "senha-segura")));
@@ -313,6 +337,17 @@ class FuncionarioWebTest {
 
     private String tokenFuncionario(Long id, Long estabelecimentoId) {
         return "Bearer " + tokenService.emitir(new UsuarioAutenticado(id, PerfilAcesso.FUNCIONARIO, estabelecimentoId));
+    }
+
+    private void prepararCadastroEstabelecimento() {
+        Proprietario proprietario = new Proprietario();
+        ReflectionTestUtils.setField(proprietario, "id", 41L);
+        when(proprietarios.findById(41L)).thenReturn(Optional.of(proprietario));
+        when(estabelecimentos.save(any(Estabelecimento.class))).thenAnswer(invocation -> {
+            Estabelecimento estabelecimento = invocation.getArgument(0);
+            ReflectionTestUtils.setField(estabelecimento, "id", 9L);
+            return estabelecimento;
+        });
     }
 
     private Estabelecimento estabelecimento(Long id) {
