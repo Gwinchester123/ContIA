@@ -45,7 +45,6 @@ export const periodoAtual = (tipo) => {
     fim.setDate(inicio.getDate() + 6);
   } else if (tipo === "mensal") {
     inicio.setDate(1);
-    fim.setMonth(hoje.getMonth() + 1, 0);
   }
   return { inicio: dataLocal(inicio), fim: dataLocal(fim) };
 };

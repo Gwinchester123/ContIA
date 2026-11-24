@@ -23,10 +23,14 @@ export default function Sidebar({ onNavigate, profile, premium }) {
   const items = profile === 'PROPRIETARIO'
     ? [...menuBase, ...(premium ? [intelligenceItem] : []), ...ownerItems]
     : employeeItems
+  const handleNavigate = (event) => {
+    event.currentTarget.blur()
+    onNavigate?.()
+  }
   return (
     <aside className="sidebar" id="dashboard-navigation" aria-label="Navegação principal">
       <div className="sidebar-heading">
-        <NavLink className="brand brand-link" to="/dashboard" onClick={onNavigate} aria-label="Ir para a tela inicial">
+        <NavLink className="brand brand-link" to="/dashboard" onClick={handleNavigate} aria-label="Ir para a tela inicial">
           <img src="/logo-contia.png" alt="ContIA" />
         </NavLink>
         <button className="sidebar-close" type="button" aria-label="Fechar menu" onClick={onNavigate}>
@@ -35,7 +39,7 @@ export default function Sidebar({ onNavigate, profile, premium }) {
       </div>
       <nav aria-label="Seções do ContIA">
         {items.map((item) => (
-          <NavLink key={item.path} to={item.path} end={item.path === '/dashboard'} onClick={onNavigate} title={item.label} className={({ isActive }) => isActive ? 'active' : ''}>
+          <NavLink key={item.path} to={item.path} end={item.path === '/dashboard'} onClick={handleNavigate} title={item.label} className={({ isActive }) => isActive ? 'active' : ''}>
             <Icon>{item.icon}</Icon><span className="sidebar-label">{item.label}</span>
           </NavLink>
         ))}
