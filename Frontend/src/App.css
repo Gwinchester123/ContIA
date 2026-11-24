@@ -1208,7 +1208,7 @@ td:first-child {
     backdrop-filter: blur(12px);
   }
 
-  .mobile-toolbar > img {
+  .mobile-toolbar .mobile-brand img {
     display: block;
     width: auto;
     max-width: 126px;
