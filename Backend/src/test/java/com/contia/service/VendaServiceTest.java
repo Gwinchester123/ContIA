@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,13 +50,17 @@ class VendaServiceTest {
         when(estabelecimentos.findById(12L)).thenReturn(Optional.of(estabelecimento(12L)));
         when(estabelecimentos.findByIdAndProprietarioId(12L, 7L)).thenReturn(Optional.of(estabelecimento));
         when(proprietarios.findById(7L)).thenReturn(Optional.of(proprietario));
+        ZoneId fusoHorario = ZoneId.of("America/Fortaleza");
+        LocalDateTime antes = LocalDateTime.now(fusoHorario);
 
         Venda venda = service.registrar(12L, List.of(
                 new VendaService.ItemEntrada("  Suco de laranja  ", 2, new BigDecimal("4.50")),
                 new VendaService.ItemEntrada("Pão", 1, new BigDecimal("3.00"))),
                 UsuarioAutenticado.proprietario(7L));
+        LocalDateTime depois = LocalDateTime.now(fusoHorario);
 
         assertEquals(new BigDecimal("12.00"), venda.getTotal());
+        assertTrue(!venda.getDataHora().isBefore(antes) && !venda.getDataHora().isAfter(depois));
         assertEquals(2, venda.getItens().size());
         assertEquals("Suco de laranja", venda.getItens().get(0).getProduto());
         assertEquals(new BigDecimal("9.00"), venda.getItens().get(0).getSubtotal());

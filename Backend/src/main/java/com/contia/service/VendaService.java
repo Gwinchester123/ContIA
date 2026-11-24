@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.Map;
 @Service
 public class VendaService {
     private static final BigDecimal VALOR_MAXIMO = new BigDecimal("99999999.99");
+    private static final ZoneId FUSO_HORARIO = ZoneId.of("America/Fortaleza");
 
     private final VendaRepository vendaRepository;
     private final EstabelecimentoRepository estabelecimentoRepository;
@@ -49,7 +51,7 @@ public class VendaService {
 
         Venda venda = new Venda();
         venda.setEstabelecimento(estabelecimento);
-        venda.setDataHora(LocalDateTime.now());
+        venda.setDataHora(LocalDateTime.now(FUSO_HORARIO));
         atribuirResponsavel(venda, usuario, estabelecimentoId);
 
         BigDecimal total = BigDecimal.ZERO;
