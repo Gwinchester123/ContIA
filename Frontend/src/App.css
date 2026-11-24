@@ -718,6 +718,10 @@ td:first-child {
   flex-wrap: wrap;
 }
 
+.sale-form-footer > .profile-back-button {
+  width: 100%;
+}
+
 .sale-grand-total {
   display: grid;
   gap: 3px;
@@ -1466,10 +1470,6 @@ td:first-child {
 
   .sale-form-footer > button {
     min-height: 46px;
-  }
-
-  .sale-form-footer > .profile-back-button {
-    width: 100%;
   }
 
   .sale-form-footer .primary-button {
