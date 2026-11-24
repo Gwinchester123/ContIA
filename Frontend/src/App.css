@@ -722,7 +722,7 @@ td:first-child {
 
 .sale-form-buttons {
   display: grid;
-  grid-template-columns: max-content;
+  grid-template-columns: max-content max-content;
   gap: 8px;
 }
 
