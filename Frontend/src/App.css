@@ -2885,9 +2885,12 @@ td:first-child {
   .if-kpis { grid-template-columns: minmax(0, 1fr); gap: 9px; }
   .if-kpi-result { grid-column: auto; }
   .if-kpi { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; padding: 14px; }
+  .if-kpi-result { grid-template-columns: max-content minmax(0, 1fr); }
   .if-kpi-top { grid-column: 1 / -1; }
   .if-kpi > strong { font-size: 23px; }
   .if-kpi > small { align-self: center; text-align: right; }
+  .if-kpi-result > strong { white-space: nowrap; }
+  .if-kpi-result > small { min-width: 0; }
   .if-card { padding: 15px 13px; border-radius: 11px; }
   .if-card-heading { align-items: flex-start; }
   .if-card-heading h2 { font-size: 15px; }
