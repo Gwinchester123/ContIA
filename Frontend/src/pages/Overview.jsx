@@ -117,26 +117,30 @@ export default function Overview() {
     saldo: faturamento - compras - outras,
   };
 
-  const faturamentoSemanal = Array.from({ length: 7 }, (_, index) => {
-    const data = new Date();
-    data.setHours(12, 0, 0, 0);
-    data.setDate(data.getDate() - (6 - index));
-    const chave = [
-      data.getFullYear(),
-      String(data.getMonth() + 1).padStart(2, "0"),
-      String(data.getDate()).padStart(2, "0"),
-    ].join("-");
-
-    return {
-      dia: data.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-      }),
-      faturamento: vendas
-        .filter((venda) => String(venda.dataHora).slice(0, 10) === chave)
-        .reduce((total, venda) => total + Number(venda.total || 0), 0),
-    };
+  const faturamentoPorDia = new Map();
+  vendas.forEach((venda) => {
+    const chave = String(venda.dataHora).slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(chave)) return;
+    faturamentoPorDia.set(
+      chave,
+      (faturamentoPorDia.get(chave) || 0) + Number(venda.total || 0),
+    );
   });
+  let faturamentoAcumulado = 0;
+  const faturamentoHistorico = [...faturamentoPorDia.entries()]
+    .sort(([dataA], [dataB]) => dataA.localeCompare(dataB))
+    .map(([chave, faturamentoDoDia]) => {
+      faturamentoAcumulado += faturamentoDoDia;
+      const data = new Date(`${chave}T12:00:00`);
+
+      return {
+        dia: data.toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+        }),
+        faturamento: faturamentoAcumulado,
+      };
+    });
   const despesasRecentes = [...despesas]
     .sort((a, b) => String(b.dataHora).localeCompare(String(a.dataHora)))
     .slice(0, 6);
@@ -208,16 +212,16 @@ export default function Overview() {
           <div className="panel-header">
             <div>
               <h3>Faturamento</h3>
-              <p>Últimos 7 dias</p>
+              <p>Histórico acumulado por data</p>
             </div>
           </div>
           <div
             className="sales-chart"
-            aria-label="Gráfico de faturamento dos últimos 7 dias"
+            aria-label="Gráfico do histórico acumulado de faturamento por data"
           >
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={faturamentoSemanal}
+                data={faturamentoHistorico}
                 margin={{ top: 10, right: 8, left: -12, bottom: 0 }}
               >
                 <defs>
@@ -259,7 +263,10 @@ export default function Overview() {
                   }
                 />
                 <Tooltip
-                  formatter={(valor) => [formatarMoeda(valor), "Faturamento"]}
+                  formatter={(valor) => [
+                    formatarMoeda(valor),
+                    "Faturamento acumulado",
+                  ]}
                   labelFormatter={(dia) => `Dia ${dia}`}
                   contentStyle={{
                     border: "1px solid #e9ece8",
