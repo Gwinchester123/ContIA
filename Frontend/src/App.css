@@ -1771,8 +1771,10 @@ td:first-child {
 .login-page {
   grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr);
   gap: 0;
+  width: 100vw;
   min-height: 100vh;
   padding: 0;
+  overflow: hidden;
   background: #fff;
 }
 .login-form-side { display: grid; place-items: center; padding: 40px clamp(24px, 6vw, 84px); }
