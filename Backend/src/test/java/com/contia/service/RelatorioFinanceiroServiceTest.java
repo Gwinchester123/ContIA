@@ -69,9 +69,9 @@ class RelatorioFinanceiroServiceTest {
 
         assertTrue(pdf.length > 100);
         assertTrue(new String(pdf, 0, 5, java.nio.charset.StandardCharsets.US_ASCII).startsWith("%PDF-"));
-        verify(estabelecimentos, times(2)).findByIdAndProprietarioId(15L, 7L);
-        verify(vendas, times(2)).findByEstabelecimentoIdAndDataHoraBetween(eq(15L), any(), any());
-        verify(despesas, times(2)).findByEstabelecimentoIdAndDataHoraBetween(eq(15L), any(), any());
+        verify(estabelecimentos).findByIdAndProprietarioId(15L, 7L);
+        verify(vendas).findByEstabelecimentoIdAndDataHoraBetween(eq(15L), any(), any());
+        verify(despesas).findByEstabelecimentoIdAndDataHoraBetween(eq(15L), any(), any());
     }
 
     @Test

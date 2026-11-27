@@ -113,10 +113,10 @@ public class RelatorioFinanceiroService {
 
     public byte[] gerarPdf(Long proprietarioId, Long estabelecimentoId, LocalDate inicio, LocalDate fim) {
         Dados periodo = carregar(proprietarioId, estabelecimentoId, inicio, fim);
-        long dias = ChronoUnit.DAYS.between(inicio, fim) + 1;
-        Dados anterior = carregar(proprietarioId, estabelecimentoId, inicio.minusDays(dias), inicio.minusDays(1));
-        Analise analise = montarAnalise(periodo, anterior, inicio, fim);
-        return new RelatorioPdfRenderer().render(analise, periodo.vendas(), periodo.despesas());
+        RelatorioPdfRenderer.Resumo resumo = new RelatorioPdfRenderer.Resumo(
+                periodo.estabelecimento().getNome(), inicio, fim, periodo.faturamento(), periodo.totalDespesas(),
+                periodo.resultado(), agruparCategorias(periodo.despesas()));
+        return new RelatorioPdfRenderer().render(resumo, periodo.vendas(), periodo.despesas());
     }
 
     private Dados carregar(Long proprietarioId, Long estabelecimentoId, LocalDate inicio, LocalDate fim) {

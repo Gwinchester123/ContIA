@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -54,16 +55,19 @@ final class RelatorioPdfRenderer {
     private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", PT_BR);
     private static final String OBSERVACAO = "Valor calculado com base nas vendas e despesas registradas no sistema. Não representa necessariamente o lucro líquido contábil.";
 
-    byte[] render(RelatorioFinanceiroService.Analise analise, List<Venda> vendas, List<Despesa> despesas) {
+    record Resumo(String estabelecimento, LocalDate inicio, LocalDate fim, BigDecimal faturamento,
+            BigDecimal despesas, BigDecimal resultado, Map<String, BigDecimal> categorias) {}
+
+    byte[] render(Resumo resumo, List<Venda> vendas, List<Despesa> despesas) {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             Document document = new Document(PageSize.A4, 38, 38, 34, 48);
             PdfWriter writer = PdfWriter.getInstance(document, output);
             writer.setPageEvent(new Rodape());
             document.open();
 
-            adicionarCabecalho(document, analise);
-            adicionarResumo(document, analise);
-            adicionarCategorias(document, analise.categorias());
+            adicionarCabecalho(document, resumo);
+            adicionarResumo(document, resumo);
+            adicionarCategorias(document, resumo.categorias());
             adicionarMovimentacoes(document, vendas, despesas);
 
             document.close();
@@ -73,7 +77,7 @@ final class RelatorioPdfRenderer {
         }
     }
 
-    private void adicionarCabecalho(Document document, RelatorioFinanceiroService.Analise analise) throws Exception {
+    private void adicionarCabecalho(Document document, Resumo resumo) throws Exception {
         PdfPTable banner = new PdfPTable(new float[] { 27, 73 });
         banner.setWidthPercentage(100);
         banner.setSpacingAfter(10);
@@ -106,8 +110,8 @@ final class RelatorioPdfRenderer {
         PdfPTable contexto = new PdfPTable(new float[] { 52, 24, 24 });
         contexto.setWidthPercentage(100);
         contexto.setSpacingAfter(5);
-        contexto.addCell(meta("ESTABELECIMENTO", analise.estabelecimento()));
-        contexto.addCell(meta("PERÍODO", DATA.format(analise.inicio()) + " a " + DATA.format(analise.fim())));
+        contexto.addCell(meta("ESTABELECIMENTO", resumo.estabelecimento()));
+        contexto.addCell(meta("PERÍODO", DATA.format(resumo.inicio()) + " a " + DATA.format(resumo.fim())));
         contexto.addCell(meta("GERADO EM", DATA_HORA.format(LocalDateTime.now(FUSO_HORARIO))));
         document.add(contexto);
     }
@@ -146,18 +150,18 @@ final class RelatorioPdfRenderer {
         return cell;
     }
 
-    private void adicionarResumo(Document document, RelatorioFinanceiroService.Analise analise) throws DocumentException {
-        adicionarTitulo(document, "Resumo financeiro");
-        PdfPTable resumo = new PdfPTable(3);
-        resumo.setWidthPercentage(100);
-        resumo.setWidths(new float[] { 1, 1, 1 });
-        resumo.setSpacingAfter(3);
-        resumo.addCell(kpi("TOTAL DE VENDAS", moeda(analise.faturamento()), GREEN_PALE, GREEN));
-        resumo.addCell(kpi("TOTAL DE DESPESAS", moeda(analise.despesas()), PALE, TEXT));
-        resumo.addCell(kpi("LUCRO ESTIMADO", moeda(analise.resultado()),
-                analise.resultado().signum() < 0 ? RED_PALE : GREEN_PALE,
-                analise.resultado().signum() < 0 ? AMOUNT_OUT : GREEN));
-        document.add(resumo);
+    private void adicionarResumo(Document document, Resumo resumo) throws DocumentException {
+        adicionarTitulo(document, "Resumo financeiro", 8, 12);
+        PdfPTable tabelaResumo = new PdfPTable(3);
+        tabelaResumo.setWidthPercentage(100);
+        tabelaResumo.setWidths(new float[] { 1, 1, 1 });
+        tabelaResumo.setSpacingAfter(3);
+        tabelaResumo.addCell(kpi("TOTAL DE VENDAS", moeda(resumo.faturamento()), GREEN_PALE, GREEN));
+        tabelaResumo.addCell(kpi("TOTAL DE DESPESAS", moeda(resumo.despesas()), PALE, TEXT));
+        tabelaResumo.addCell(kpi("LUCRO ESTIMADO", moeda(resumo.resultado()),
+                resumo.resultado().signum() < 0 ? RED_PALE : GREEN_PALE,
+                resumo.resultado().signum() < 0 ? AMOUNT_OUT : GREEN));
+        document.add(tabelaResumo);
         document.add(paragrafo(OBSERVACAO, fonte(8, Font.ITALIC, MUTED)));
     }
 
@@ -247,10 +251,15 @@ final class RelatorioPdfRenderer {
     }
 
     private void adicionarTitulo(Document document, String texto) throws DocumentException {
+        adicionarTitulo(document, texto, 12, 8);
+    }
+
+    private void adicionarTitulo(Document document, String texto, float espacamentoAntes, float espacamentoDepois)
+            throws DocumentException {
         Paragraph titulo = new Paragraph(texto, fonte(11, Font.BOLD, GREEN));
         titulo.setKeepTogether(true);
-        titulo.setSpacingBefore(12);
-        titulo.setSpacingAfter(8);
+        titulo.setSpacingBefore(espacamentoAntes);
+        titulo.setSpacingAfter(espacamentoDepois);
         document.add(titulo);
     }
 
