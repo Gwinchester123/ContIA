@@ -1769,13 +1769,20 @@ td:first-child {
 }
 
 .login-page {
-  grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   padding: 0;
   overflow: hidden;
   background: #fff;
+}
+html:has(.login-page),
+body:has(.login-page),
+#root:has(.login-page) {
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 .login-form-side { display: grid; place-items: center; padding: 40px clamp(24px, 6vw, 84px); }
 .login-card { width: min(420px, 100%); gap: 18px; padding: 0; border: 0; }
