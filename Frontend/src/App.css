@@ -1782,6 +1782,7 @@ html:has(.login-page),
 body:has(.login-page),
 #root:has(.login-page) {
   width: 100%;
+  background: #173e31;
   overflow-x: hidden;
   overflow-y: hidden;
 }
