@@ -49,7 +49,10 @@ public class RelatorioFinanceiroService {
         Dados periodo = carregar(proprietarioId, estabelecimentoId, inicio, fim);
         long dias = ChronoUnit.DAYS.between(inicio, fim) + 1;
         Dados anterior = carregar(proprietarioId, estabelecimentoId, inicio.minusDays(dias), inicio.minusDays(1));
+        return montarAnalise(periodo, anterior, inicio, fim);
+    }
 
+    private Analise montarAnalise(Dados periodo, Dados anterior, LocalDate inicio, LocalDate fim) {
         List<String> alertas = new ArrayList<>();
         List<String> recomendacoes = new ArrayList<>();
         boolean temDadosParaAnalisar = !periodo.vendas().isEmpty() || !periodo.despesas().isEmpty()
@@ -109,8 +112,10 @@ public class RelatorioFinanceiroService {
     }
 
     public byte[] gerarPdf(Long proprietarioId, Long estabelecimentoId, LocalDate inicio, LocalDate fim) {
-        Analise analise = analisar(proprietarioId, estabelecimentoId, inicio, fim);
         Dados periodo = carregar(proprietarioId, estabelecimentoId, inicio, fim);
+        long dias = ChronoUnit.DAYS.between(inicio, fim) + 1;
+        Dados anterior = carregar(proprietarioId, estabelecimentoId, inicio.minusDays(dias), inicio.minusDays(1));
+        Analise analise = montarAnalise(periodo, anterior, inicio, fim);
         return new RelatorioPdfRenderer().render(analise, periodo.vendas(), periodo.despesas());
     }
 
