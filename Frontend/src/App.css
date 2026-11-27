@@ -1815,7 +1815,7 @@ body:has(.login-page),
   stroke-linejoin: round;
 }
 .login-card .primary-button { min-height: 46px; }
-.login-presentation { position: relative; display: grid; align-items: center; min-height: 100vh; overflow: hidden; padding: clamp(40px, 8vw, 110px); background: linear-gradient(145deg, #173e31, #235d41 65%, #347a55); color: #fff; }
+.login-presentation { position: relative; display: grid; align-items: center; width: auto; margin-right: -24px; min-height: 100vh; overflow: hidden; padding: clamp(40px, 8vw, 110px); background: linear-gradient(145deg, #173e31, #235d41 65%, #347a55); box-shadow: 24px 0 0 #347a55; color: #fff; }
 .login-presentation::before, .login-presentation::after { position: absolute; content: ""; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; }
 .login-presentation::before { width: 520px; height: 520px; right: -190px; top: -200px; }
 .login-presentation::after { width: 400px; height: 400px; right: -130px; top: -140px; }
